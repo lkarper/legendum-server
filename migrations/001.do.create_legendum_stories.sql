@@ -1,4 +1,4 @@
 CREATE TABLE legendum_stories (
     id SERIAL PRIMARY KEY,
-    title TEXT NOT NULL
+    story_title TEXT NOT NULL
 );
