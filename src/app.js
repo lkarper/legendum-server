@@ -5,6 +5,7 @@ const cors = require('cors');
 const helmet = require('helmet');
 const { NODE_ENV } = require('./config');
 const dialogueRouter = require('./dialogue/dialogue-router');
+const exercisesRouter = require('./exercises/exercises-router');
 
 const app = express();
 
@@ -14,6 +15,7 @@ app.use(helmet());
 app.use(cors());
 
 app.use('/api/dialogue', dialogueRouter);
+app.use('/api/exercises', exercisesRouter);
 
 app.use(function errorHandler(error, req, res, next) {
     let response;
