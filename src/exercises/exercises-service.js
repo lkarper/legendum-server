@@ -5,7 +5,8 @@ const ExercisesService = {
             .from('legendum_exercises_learn AS lel')
             .where('lel.exercise_id', id)
             .join('legendum_exercises AS le', 'lel.exercise_id', 'le.id')
-            .join('legendum_exercises_learn_hints AS lelh', 'lel.id', 'lelh.exercise_page_id');
+            .leftJoin('legendum_exercises_learn_hints AS lelh', 'lel.id', 'lelh.exercise_page_id')
+            .orderBy('lel.page');
     }
 };
 
