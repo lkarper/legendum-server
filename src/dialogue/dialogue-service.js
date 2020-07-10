@@ -6,6 +6,6 @@ const DialogueService = {
             .join('legendum_stories AS ls', 'ld.story_id', 'ls.id' );
             
     }, 
-}
+};
 
 module.exports = DialogueService;
