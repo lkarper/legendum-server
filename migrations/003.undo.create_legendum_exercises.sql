@@ -1,1 +1,1 @@
-DROP TABLE IF EXISTS legeundum_exercises.sql;
+DROP TABLE IF EXISTS legendum_exercises;
