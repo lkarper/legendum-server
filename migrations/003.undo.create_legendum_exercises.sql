@@ -1,0 +1,1 @@
+DROP TABLE IF EXISTS legeundum_exercises.sql;

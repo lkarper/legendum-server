@@ -4,6 +4,7 @@ CREATE TABLE legendum_dialogue (
         REFERENCES legendum_stories(id) ON DELETE CASCADE NOT NULL,
     page INTEGER NOT NULL UNIQUE,
     text TEXT NOT NULL,
+    image TEXT,
     choices TEXT,
     responses_to_choices TEXT
 );
