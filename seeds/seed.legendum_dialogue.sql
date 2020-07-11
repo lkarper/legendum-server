@@ -1,3 +1,8 @@
+BEGIN;
+TRUNCATE
+    legendum_dialogue
+    RESTART IDENTITY CASCADE;
+
 SET CLIENT_ENCODING TO 'utf8';
 INSERT INTO legendum_dialogue (story_id, page, text, choices, responses_to_choices, image_url, image_alt_text)
 VALUES
@@ -9,3 +14,5 @@ VALUES
     (1, 6, 'Rhadamanthus: “You’re not dead.  You’ve been chosen for a very special task: you’re going to be a genius!”', '“I’m already a genius.”|“...chosen?”', '“If you were a genius, you would have stayed on the beach in Naples.”|“Well, in a way, you chose your own fate.”', 'https://lh3.googleusercontent.com/pw/ACtC-3eFOqPNGADXGNHzM1I6cdRQOpV_bLTlDVd_7c9nP11jlutDh1qy0VG-hPHzR0gyUfpeVFcDrq6VwS73OyeaNTbLWC0UcS_LfwzKWcC7J8PLI60dZaUYcjScmvd6wFoYKTAxYMaIJ7oaPufLH0pCv0dn=w480-h600-no?authuser=2', 'Man with dark hair and large beard.'),
     (1, 7, 'Rhadamanthus: “Maybe you fell into Lethe on your way here, but you were vacationing in Naples and decided to visit Lake Avernus without a guide.  You got lost and it started to rain quite heavily, so you made for a nearby cave.  In the dark of the cave, you tripped and stumbled all the way down to the underworld.”', '“That doesn’t sound like me.”|“If that’s true, I probably shouldn’t be CHOSEN to do anything…”', 'Rhadamanthus: “Well, you fell into Lethe, the river of forgetfulness, genius.”|Rhadamanthus: “That is why it must be you!  Sorry, we get movies a bit late down here, and I just saw Gladiator…”', 'https://lh3.googleusercontent.com/pw/ACtC-3eFOqPNGADXGNHzM1I6cdRQOpV_bLTlDVd_7c9nP11jlutDh1qy0VG-hPHzR0gyUfpeVFcDrq6VwS73OyeaNTbLWC0UcS_LfwzKWcC7J8PLI60dZaUYcjScmvd6wFoYKTAxYMaIJ7oaPufLH0pCv0dn=w480-h600-no?authuser=2', 'Man with dark hair and large beard.'),
     (1, 8, 'Rhadamanthus: “Anyway, since you’re here and you’re not technically dead, we have a very special job for you: you’re going to be assigned to a child as a genius--a guardian spirit who offers advice and guidance!  Luckily for you, we’re shorthanded in Rome back in the 2nd C, so YOU get to learn Latin!  Don’t worry, I’ll help you.  Let’s start with some basics.”', null, null, 'https://lh3.googleusercontent.com/pw/ACtC-3eFOqPNGADXGNHzM1I6cdRQOpV_bLTlDVd_7c9nP11jlutDh1qy0VG-hPHzR0gyUfpeVFcDrq6VwS73OyeaNTbLWC0UcS_LfwzKWcC7J8PLI60dZaUYcjScmvd6wFoYKTAxYMaIJ7oaPufLH0pCv0dn=w480-h600-no?authuser=2', 'Man with dark hair and large beard.');
+
+COMMIT;

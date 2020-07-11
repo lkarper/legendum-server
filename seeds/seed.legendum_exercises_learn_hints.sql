@@ -1,3 +1,9 @@
+BEGIN;
+
+TRUNCATE
+    legendum_exercises_learn_hints
+    RESTART IDENTITY CASCADE;
+
 SET CLIENT_ENCODING TO 'utf8';
 INSERT INTO legendum_exercises_learn_hints (exercise_page_id, hints)
     VALUES
@@ -10,3 +16,5 @@ INSERT INTO legendum_exercises_learn_hints (exercise_page_id, hints)
         (8, '“Quoque” is a conjunction.  It means “also” or “as well”.'),
         (9, '“Valē” is a command.  It literally means “be well”, but it acts like the English “farewell”.  It’s how you say goodbye to one person in Latin.'),
         (10, '“Exit” is a verb.  It means “goes away” or “departs”.');
+
+COMMIT;

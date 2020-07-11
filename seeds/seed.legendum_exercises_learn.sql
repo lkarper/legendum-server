@@ -1,3 +1,9 @@
+BEGIN;
+
+TRUNCATE
+    legendum_exercises_learn
+    RESTART IDENTITY CASCADE;
+
 SET CLIENT_ENCODING to 'utf8';
 INSERT INTO legendum_exercises_learn (exercise_id, page, text, image_url, image_alt_text)
 VALUES
@@ -12,3 +18,5 @@ VALUES
     (1, 9, 'Lūcius et Iūlia: “Valē!”', 'https://lh3.googleusercontent.com/pw/ACtC-3dq-clJGd33zvaJ0G9JdrSD62IA35PmjoQy4GkOZvzSaNLYx6_JTFWXpVxtVemWAI761f0qyWWB7UkZN-Q6nV1AUmiO8nrX2iWqu_8GMGtQx3QcJD_kemHt86kaYfIczyagg0UtDm0M__ZetpEA9So=s600-no?authuser=2', 'Lucius and Iulia speak at the same time.'),
     (1, 10, '(Lūcius exit.)', 'https://lh3.googleusercontent.com/pw/ACtC-3fHLfPVrVb62lS4ljqzoXvuHPsPfKoDMQMtZMIKEKBea4pT7vIzSnNxZ4pAI0eFs-Ump-k_vVd7wRd7_U7eOBAksovU0wD4JO3-VyrugIDzzS1PlC4ivy7j_dZNvVM3OCrZygQM8yTb9nLopPO5YiU=s600-no?authuser=2', 'Lucius leaves and Iulia remains.'),
     (1, 11, '(Iūlia exit.)', null, null);
+
+COMMIT;
