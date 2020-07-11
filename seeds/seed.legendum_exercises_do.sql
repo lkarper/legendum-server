@@ -17,7 +17,7 @@ VALUES
     (1, 1, 'Rhadamanthus: “Salvē!”', false, null, 'multiple-choice'),
     (1, 2, 'Rhadamanthus: “Egō sum Rhadamanthus.”', false, null, 'multiple-choice'),
     (1, 3, 'Rhadamanthus: “Nōmen mihi est Rhadamanthus.”', false, null, 'input'),
-    (1, 4, 'Rhadamanthus: “Nōmen tibi est {user_name}.”', true, 'user_name', 'true/false'),
+    (1, 4, 'Rhadamanthus: “Nōmen tibi est {savedUserInput.user_name}.”', true, 'user_name', 'true/false'),
     (1, 5, 'Rhadamanthus: “Pergrātum te convenīre!”', false, null, 'multiple-choice');
 
 TRUNCATE
