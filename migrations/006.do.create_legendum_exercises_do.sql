@@ -12,5 +12,20 @@ CREATE TABLE legendum_exercises_do (
     dialogue TEXT,
     dialogue_look_back BOOLEAN,
     dialogue_to_look_for TEXT,
-    question_type question_category
+    question_type question_category,
+    question TEXT NOT NULL,
+    incorrect_response_option_1 TEXT,
+    incorrect_response_option_2 TEXT,
+    incorrect_response_option_3 TEXT,
+    correct_response TEXT,
+    response_if_incorrect_1 TEXT,
+    response_if_incorrect_2 TEXT,
+    response_if_incorrect_3 TEXT,
+    look_ahead BOOLEAN,
+    look_back BOOLEAN,
+    property_to_save TEXT,
+    property_to_look_for TEXT, 
+    image_url TEXT,
+    image_alt_text TEXT,
+    input_label TEXT
 );

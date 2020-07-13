@@ -1,1 +1,0 @@
-DROP TABLE IF EXISTS legendum_exercises_do_input;
