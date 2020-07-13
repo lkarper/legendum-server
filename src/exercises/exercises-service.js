@@ -7,6 +7,13 @@ const ExercisesService = {
             .join('legendum_exercises AS le', 'lel.exercise_id', 'le.id')
             .leftJoin('legendum_exercises_learn_hints AS lelh', 'lel.id', 'lelh.exercise_page_id')
             .orderBy('lel.page');
+    },
+    getExercisesDoById(db, id) {
+        return db
+            .select('*')
+            .from('legendum_exercises_do AS led')
+            .where('led.exercise_id', id)
+            .orderBy('led.page');
     }
 };
 
