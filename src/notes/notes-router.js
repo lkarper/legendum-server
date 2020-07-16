@@ -44,4 +44,59 @@ notesRouter
             .catch(next);
     });
 
+notesRouter
+    .route('/:note_id')
+    .all(requireAuth, (req, res, next) => {
+        NotesService.getById(
+            req.app.get('db'),
+            req.params.note_id
+        )
+            .then(note => {
+                if (!note) {
+                    return res.status(404).json({
+                        error: { message: `Note doesn't exist` }
+                    });
+                }
+                res.note = note;
+                next();
+            })
+            .catch(next);
+    })
+    .get((req, res, next) => {
+        res.json(NotesService.serializeNote(res.note));
+    })
+    .delete((req, res, next) => {
+        NotesService.deleteNote(
+            req.app.get('db'),
+            req.params.note_id
+        )
+            .then(() => {
+                res.status(204).end();
+            })
+            .catch(next);
+    })
+    .patch(jsonBodyParser, (req, res, next) => {
+        const { hint_id, custom_note, date_modified } = req.body;
+        const noteToUpdate = { hint_id, custom_note, date_modified };
+
+        const numberOfValues = Object.values(noteToUpdate).filter(Boolean).length;
+        if (numberOfValues === 0) {
+            return res.status(400).json({
+                error: {
+                    message: `Request body must contain one of 'hint_id', 'custom_note', or 'date_modified'`,
+                },
+            });
+        }
+
+        NotesService.updateNote(
+            req.app.get('db'),
+            req.params.note_id,
+            noteToUpdate
+        )
+            .then(numRowsAffected => {
+                res.status(204).end();
+            })
+            .catch(next);
+    });
+
 module.exports = notesRouter;

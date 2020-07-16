@@ -43,6 +43,16 @@ const NotesService = {
                 NotesService.getById(db, note.id)
             );   
     },
+    updateNote(knex, id, newNoteFields) {
+        return knex('legendum_saved_notes')
+            .where({ id })
+            .update(newNoteFields);
+    },
+    deleteNote(knex, id) {
+        return knex('legendum_saved_notes')
+            .where({ id })
+            .delete();
+    },
     serializeNote(note) {
         return {
             id: note.id,
