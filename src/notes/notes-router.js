@@ -14,8 +14,8 @@ notesRouter
             req.app.get('db'),
             user_id
         )
-        .then(notes => res.json(notes.map(NotesService.serializeNote)))
-        .catch(next);
+            .then(notes => res.json(notes.map(NotesService.serializeNote)))
+            .catch(next);
     })
     .post(requireAuth, jsonBodyParser, (req, res, next) => {
         const { hint_id, custom_note } = req.body;
