@@ -35,6 +35,12 @@ const ExercisesService = {
             .where('led.exercise_id', id)
             .join('legendum_exercises AS le', 'le.id', 'led.exercise_id')
             .orderBy('led.page');
+    }, 
+    getAllExercises(db) {
+        return db 
+            .select('*')
+            .from('legendum_exercises AS le')
+            .orderBy('le.id');
     }
 };
 

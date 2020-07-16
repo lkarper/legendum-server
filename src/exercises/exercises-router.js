@@ -4,6 +4,16 @@ const ExercisesService = require('./exercises-service');
 const exercisesRouter = express.Router();
 
 exercisesRouter
+    .route('/')
+    .get((req, res, next) => {
+        ExercisesService.getAllExercises(req.app.get('db'))
+            .then(exercises => {
+                res.json(exercises);
+            })
+            .catch(next);
+    })
+
+exercisesRouter
     .route('/:exercises_id/learn')
     .get((req, res, next) => {
         ExercisesService.getExercisesLearnById(
