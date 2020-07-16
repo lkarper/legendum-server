@@ -8,6 +8,7 @@ const dialogueRouter = require('./dialogue/dialogue-router');
 const exercisesRouter = require('./exercises/exercises-router');
 const authRouter = require('./auth/auth-router');
 const usersRouter = require('./users/users-router');
+const notesRouter = require('./notes/notes-router');
 
 const app = express();
 
@@ -20,6 +21,7 @@ app.use('/api/dialogue', dialogueRouter);
 app.use('/api/exercises', exercisesRouter);
 app.use('/api/auth', authRouter);
 app.use('/api/users', usersRouter);
+app.use('/api/notes', notesRouter);
 
 app.use(function errorHandler(error, req, res, next) {
     let response;
