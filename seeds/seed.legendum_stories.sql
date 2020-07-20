@@ -6,6 +6,7 @@ TRUNCATE
 
 INSERT INTO legendum_stories (story_title)
 VALUES
-    ('Initium');
+    ('Initium'),
+    ('Adventus');
 
 COMMIT;
