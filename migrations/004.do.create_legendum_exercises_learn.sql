@@ -5,5 +5,7 @@ CREATE TABLE legendum_exercises_learn (
     page INTEGER NOT NULL,
     text TEXT NOT NULL,
     image_url TEXT,
-    image_alt_text TEXT
+    image_alt_text TEXT,
+    background_image_url TEXT,
+    background_image_alt_text TEXT
 );

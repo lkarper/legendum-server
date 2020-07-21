@@ -27,5 +27,7 @@ CREATE TABLE legendum_exercises_do (
     property_to_look_for TEXT, 
     image_url TEXT,
     image_alt_text TEXT,
-    input_label TEXT
+    input_label TEXT,
+    background_image_url TEXT,
+    background_image_alt_text TEXT
 );

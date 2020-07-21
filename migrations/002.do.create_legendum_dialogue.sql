@@ -7,5 +7,7 @@ CREATE TABLE legendum_dialogue (
     image_url TEXT,
     image_alt_text TEXT,
     choices TEXT,
-    responses_to_choices TEXT
+    responses_to_choices TEXT, 
+    background_image_url TEXT,
+    background_image_alt_text TEXT
 );
