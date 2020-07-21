@@ -7,7 +7,9 @@ const ExercisesService = {
                 'lel.page', 
                 'lel.text', 
                 'lel.image_url',
-                'lel.image_alt_text', 
+                'lel.image_alt_text',
+                'lel.background_image_url',
+                'lel.background_image_alt_text', 
                 'le.exercise_title', 
                 'le.exercise_translation',
                 db.raw(
