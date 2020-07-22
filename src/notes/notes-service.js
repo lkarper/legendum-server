@@ -9,9 +9,13 @@ const NotesService = {
                 'lsn.hint_id',
                 'lsn.custom_note',
                 'lsn.date_modified',
-                'lelh.hint'
+                'lelh.hint',
+                'le.exercise_title',
+                'le.exercise_translation'
             )
             .join('legendum_exercises_learn_hints AS lelh', 'lsn.hint_id', 'lelh.id')
+            .join('legendum_exercises_learn AS lel', 'lelh.exercise_page_id', 'lel.id')
+            .join('legendum_exercises AS le', 'lel.exercise_id', 'le.id')
             .where('lsn.id', id)
             .first();
     },
