@@ -1,4 +1,4 @@
-UpBEGIN;
+BEGIN;
 TRUNCATE
     legendum_dialogue
     RESTART IDENTITY CASCADE;
