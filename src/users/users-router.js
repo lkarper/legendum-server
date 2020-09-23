@@ -7,7 +7,12 @@ const jsonBodyParser = express.json();
 
 usersRouter
     .post('/', jsonBodyParser, (req, res, next) => {
-        const { password, user_name, display_name } = req.body;
+        const { 
+            password, 
+            user_name, 
+            display_name, 
+        } = req.body;
+
         for (const field of ['display_name', 'user_name', 'password']) {
             if (!req.body[field]) {
                 return res.status(400).json({
