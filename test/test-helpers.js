@@ -67,9 +67,23 @@ function seedUsers(db, users) {
     return db('legendum_users').insert(preppedUsers);
 }
 
+function makeAuthHeader(user, secret = process.env.JWT_SECRET) {
+    const token = jwt.sign(
+        { user_id: user.id }, 
+        secret, 
+        {
+            subject: user.user_name,
+            algorithm: 'HS256',
+        }
+    );
+
+    return `Bearer ${token}`;
+}
+
 module.exports = {
     cleanTables,
     makeUsersArray,
     makeUsersFixtures,
     seedUsers,
+    makeAuthHeader,
 };
