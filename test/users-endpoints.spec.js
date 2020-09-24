@@ -146,7 +146,7 @@ describe('Users endpoints', () => {
             });
         });
 
-        context.only(`Given a valid request body`, () => {
+        context(`Given a valid request body`, () => {
             it(`responds 201, serialized user, storing bcrypted password`, function() {
                 this.retries(3);
                 const newUser = {
