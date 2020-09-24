@@ -4,4 +4,4 @@ module.exports = {
     DATABASE_URL: process.env.DATABASE_URL || 'postgresql://postgres@localhost/legendum',
     JWT_SECRET: process.env.JWT_SECRET || '123NotAParticularyGreatSecret!!!',
     JWT_EXPIRY: process.env.JWT_EXPIRY || '1h',
-  }
+}
