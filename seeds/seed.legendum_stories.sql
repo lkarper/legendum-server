@@ -4,9 +4,9 @@ TRUNCATE
     legendum_stories
     RESTART IDENTITY CASCADE;
 
-INSERT INTO legendum_stories (story_title)
+INSERT INTO legendum_stories (story_title, chapter_number)
 VALUES
-    ('Initium'),
-    ('Adventus');
+    ('Initium', 1),
+    ('Adventus', 2);
 
 COMMIT;

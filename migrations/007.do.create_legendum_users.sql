@@ -4,5 +4,6 @@ CREATE TABLE legendum_users (
     password TEXT NOT NULL,
     display_name TEXT NOT NULL,
     date_created TIMESTAMPTZ DEFAULT now() NOT NULL,
-    date_modified TIMESTAMPTZ
+    date_modified TIMESTAMPTZ,
+    admin BOOLEAN DEFAULT false
 );
