@@ -4,6 +4,7 @@ const morgan = require('morgan');
 const cors = require('cors');
 const helmet = require('helmet');
 const { NODE_ENV } = require('./config');
+const storiesRouter = require('./stories/stories-router');
 const dialogueRouter = require('./dialogue/dialogue-router');
 const exercisesRouter = require('./exercises/exercises-router');
 const authRouter = require('./auth/auth-router');
@@ -18,6 +19,7 @@ app.use(morgan(morganOption));
 app.use(helmet());
 app.use(cors());
 
+app.use('/api/stories', storiesRouter);
 app.use('/api/dialogue', dialogueRouter);
 app.use('/api/exercises', exercisesRouter);
 app.use('/api/auth', authRouter);
