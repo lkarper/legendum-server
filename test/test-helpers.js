@@ -23,30 +23,35 @@ function makeUsersArray() {
             user_name: 'test-user-1',
             password: 'password',
             display_name: 'marcus1',
+            admin: true,
         },
         {
             id: 2,
             user_name: 'test-user-2',
             password: 'password',
             display_name: 'marcus2',
+            admin: false,
         },
         {
             id: 3,
             user_name: 'test-user-3',
             password: 'password',
             display_name: 'marcus3',
+            admin: false,
         },
         {
             id: 4,
             user_name: 'test-user-4',
             password: 'password',
             display_name: 'marcus4',
+            admin: false,
         },
         {
             id: 5,
             user_name: 'test-user-5',
             password: 'password',
             display_name: 'marcus5',
+            admin: false,
         },
     ];
 }
