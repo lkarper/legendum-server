@@ -30,28 +30,24 @@ function makeUsersArray() {
             user_name: 'test-user-2',
             password: 'password',
             display_name: 'marcus2',
-            admin: false,
         },
         {
             id: 3,
             user_name: 'test-user-3',
             password: 'password',
             display_name: 'marcus3',
-            admin: false,
         },
         {
             id: 4,
             user_name: 'test-user-4',
             password: 'password',
             display_name: 'marcus4',
-            admin: false,
         },
         {
             id: 5,
             user_name: 'test-user-5',
             password: 'password',
             display_name: 'marcus5',
-            admin: false,
         },
     ];
 }
@@ -70,6 +66,35 @@ function seedUsers(db, users) {
         password: bcrypt.hashSync(user.password, 1),
     }));
     return db('legendum_users').insert(preppedUsers);
+}
+
+function makeStoriesArray() {
+    return [1, 2, 3, 4].map(num => ({
+        id: num,
+        story_title: `Test Title ${num}`,
+        chapter_number: num,
+    }));
+}
+
+function makeMaliciousStory() {
+    return {
+        id: 911,
+        story_title: 'Naughty naughty very naughty <script>alert("xss");</script>',
+        chapter_number: 911,
+    };
+}
+
+function makeSanatizedStory() {
+    return {
+        id: 911,
+        story_title: 'Naughty naughty very naughty &lt;script&gt;alert(\"xss\");&lt;/script&gt;',
+        chapter_number: 911,
+    };
+}
+
+function seedStories(db, stories) {
+    return db('legendum_stories')
+        .insert(stories);
 }
 
 function makeAuthHeader(user, secret = process.env.JWT_SECRET) {
@@ -91,4 +116,8 @@ module.exports = {
     makeUsersFixtures,
     seedUsers,
     makeAuthHeader,
+    makeStoriesArray,
+    makeMaliciousStory,
+    seedStories,
+    makeSanatizedStory,
 };
