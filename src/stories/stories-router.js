@@ -19,6 +19,11 @@ storiesRouter
             chapter_number,
         } = req.body;
 
+        const story = { 
+            story_title,
+            chapter_number,
+        };
+
         // Only admins may create new story content
         if (!req.user.admin) {
             return res.status(401).json({
@@ -26,18 +31,13 @@ storiesRouter
             });
         }
 
-        for (element of [story_title, chapter_number]) {
-            if (!element) {
+        for (const [key, value] of Object.entries(story)) {
+            if (value == null) {
                 return res.status(400).json({
-                    error: `Missing '${element}' in request body`
+                    error: `Missing '${key}' in request body`
                 });
             }
         }
-
-        const story = { 
-            story_title,
-            chapter_number,
-        };
 
         StoriesService.insertStory(
             req.app.get('db'),
