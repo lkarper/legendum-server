@@ -39,21 +39,33 @@ storiesRouter
             }
         }
 
-        StoriesService.insertStory(
+        // chapter_number must be unique, so first check if a chapter_number is already in use
+        StoriesService.hasStoryWithChapterNumber(
             req.app.get('db'),
-            story
+            chapter_number
         )
-            .then(story => {
-                return res.status(201)
-                    .location(path.posix.join(req.originalUrl, `/${story.id}`))
-                    .json(StoriesService.serializeStory(story));
+            .then(chapterNumberExists => {
+                if (chapterNumberExists) {
+                    return res.status(400).json({ error: `Chapter number is already in use` });
+                } else {
+                    StoriesService.insertStory(
+                        req.app.get('db'),
+                        story
+                    )
+                        .then(story => {
+                            return res.status(201)
+                                .location(path.posix.join(req.originalUrl, `/${story.id}`))
+                                .json(StoriesService.serializeStory(story));
+                        });
+                }
             })
             .catch(next);
     });
 
 storiesRouter
     .route('/:story_id')
-    .get(checkStoryExists, (req, res, next) => {
+    .all(checkStoryExists)
+    .get((req, res, next) => {
         return res.json(
             StoriesService.serializeStory(res.story)
         );
@@ -73,7 +85,7 @@ storiesRouter
             .then(() => res.status(204).end())
             .catch(next);
     })
-    .patch(requireAuth, (req, res, next) => {
+    .patch(requireAuth, jsonBodyParser, (req, res, next) => {
         // Only admins may update story content
         if (!req.user.admin) {
             return res.status(401).json({
@@ -100,13 +112,33 @@ storiesRouter
             });
         }
 
-        StoriesService.updateStory(
-            req.app.get('db'),
-            req.params.story_id,
-            storyToUpdate
-        )
-            .then(numRowsAffected => res.status(204).end())
-            .catch(next);
+        if (chapter_number) {
+            StoriesService.hasStoryWithChapterNumber(
+                req.app.get('db'),
+                chapter_number
+            )
+                .then(chapterNumberExists => {
+                    if (chapterNumberExists) {
+                        return res.status(400).json({ error: `Chapter number is already in use` });
+                    } else {
+                        StoriesService.updateStory(
+                            req.app.get('db'),
+                            req.params.story_id,
+                            storyToUpdate
+                        )
+                            .then(numRowsAffected => res.status(204).end());
+                    }
+                })
+                .catch(next);
+        } else {
+            StoriesService.updateStory(
+                req.app.get('db'),
+                req.params.story_id,
+                storyToUpdate
+            )
+                .then(numRowsAffected => res.status(204).end())
+                .catch(next);
+        }
     });
 
 async function checkStoryExists(req, res, next) {
