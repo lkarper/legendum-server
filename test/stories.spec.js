@@ -149,6 +149,28 @@ describe.only('Stories endpoints', () => {
         });
     });
 
+    describe('GET /api/stories/by-chapter/:chapter_number', () => {
+        context('Given that the story with requested chapter number does not exist', () => {
+            it('responds with 404 and an error message', () => {
+                return supertest(app)
+                    .get('/api/stories/by-chapter/1')
+                    .expect(404, {
+                        error: `Chapter doesn't exist`,
+                    });
+            });
+        });
+
+        context('Given that the story with requested chapter number does exist', () => {
+            beforeEach('seed stories', () => helpers.seedStories(db, stories));
+            it('responds with 200 and the requested story', () => {
+                const testStory = stories.find(story => story.chapter_number === 1);
+                return supertest(app)
+                    .get(`/api/stories/by-chapter/${testStory.chapter_number}`)
+                    .expect(200, testStory);
+            });
+        });
+    });
+
     describe('GET /api/stories/:story_id', () => {
         context('Given that the story with requested id does not exist', () => {
             it('responds with 404 and an error message', () => {
