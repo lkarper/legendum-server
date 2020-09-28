@@ -26,6 +26,12 @@ const StoriesService = {
             .where({ id })
             .update(newStoryFields);
     },
+    hasStoryWithChapterNumber(db, chapter_number) {
+        return db('legendum_stories')
+            .where({ chapter_number })
+            .first()
+            .then(chapter_number => !!chapter_number);
+    },
     serializeStory(story) {
         return {
             id: story.id,
