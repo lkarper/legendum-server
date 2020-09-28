@@ -72,10 +72,11 @@ const DialogueService = {
         };
     },
     serializeDialogueForStory(dialogue) {
+        const pages = dialogue.pages || [];
         return {
             chapter_number: dialogue.chapter_number,
             story_title: xss(dialogue.story_title),
-            pages: dialogue.pages.map(page => ({
+            pages: pages.map(page => ({
                 id: page.id,
                 page: page.page,
                 text: xss(page.text),
