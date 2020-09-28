@@ -5,7 +5,7 @@ TRUNCATE
 
 SET CLIENT_ENCODING TO 'utf8';
 INSERT INTO legendum_dialogue (
-    story_id, 
+    chapter_number, 
     page, 
     text, 
     choices, 
@@ -14,8 +14,7 @@ INSERT INTO legendum_dialogue (
     image_alt_text, 
     background_image_url, 
     background_image_alt_text
-);
-
+)
 VALUES
     (1, 1, '(You wake up and find yourself in a strange place.  Before you stands a strange looking man wearing a large blanket.  Your head feels fuzzy and you have no idea where you are or how you got there.  Suddenly, the man speaks.)', null, null, 'https://lh3.googleusercontent.com/pw/ACtC-3eFOqPNGADXGNHzM1I6cdRQOpV_bLTlDVd_7c9nP11jlutDh1qy0VG-hPHzR0gyUfpeVFcDrq6VwS73OyeaNTbLWC0UcS_LfwzKWcC7J8PLI60dZaUYcjScmvd6wFoYKTAxYMaIJ7oaPufLH0pCv0dn=w480-h600-no?authuser=2', 'Man with dark hair and large beard.', 'https://lh3.googleusercontent.com/pw/ACtC-3e8egvT3TwjewgTmD9l3Gqk3xQDV0t2Sgh2mPke2hZmXkC4VeC9FoRZkEWJmrAGxm3xMBmeCgu8UNdjUlIqR_zHW_r8KqC38kb54HtymhoJ9oP_-AvKyIHED0zpXfbzDn5VlxDNw__ISSR2NSLMUWwg=w1178-h883-no?authuser=2', 'You are in a cave with a river running through the background.'),
     (1, 2, 'Rhadamanthus: “Bene advēnistī ad domum Plūtōnis.  Sum Rhadamanthus, iūdex mortuōrum.”', null, null, 'https://lh3.googleusercontent.com/pw/ACtC-3eFOqPNGADXGNHzM1I6cdRQOpV_bLTlDVd_7c9nP11jlutDh1qy0VG-hPHzR0gyUfpeVFcDrq6VwS73OyeaNTbLWC0UcS_LfwzKWcC7J8PLI60dZaUYcjScmvd6wFoYKTAxYMaIJ7oaPufLH0pCv0dn=w480-h600-no?authuser=2', 'Man with dark hair and large beard.', 'https://lh3.googleusercontent.com/pw/ACtC-3e8egvT3TwjewgTmD9l3Gqk3xQDV0t2Sgh2mPke2hZmXkC4VeC9FoRZkEWJmrAGxm3xMBmeCgu8UNdjUlIqR_zHW_r8KqC38kb54HtymhoJ9oP_-AvKyIHED0zpXfbzDn5VlxDNw__ISSR2NSLMUWwg=w1178-h883-no?authuser=2', 'You are in a cave with a river running through the background.'),
