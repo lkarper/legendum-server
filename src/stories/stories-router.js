@@ -63,6 +63,15 @@ storiesRouter
     });
 
 storiesRouter
+    .route('/by-chapter/:chapter_number')
+    .all(checkChapterExists)
+    .get((req, res, next) => {
+        return res.json(
+            StoriesService.serializeStory(res.chapter)
+        );
+    });
+
+storiesRouter
     .route('/:story_id')
     .all(checkStoryExists)
     .get((req, res, next) => {
@@ -140,6 +149,26 @@ storiesRouter
                 .catch(next);
         }
     });
+
+async function checkChapterExists(req, res, next) {
+    try {
+        const chapter = await StoriesService.getByChapterNumber(
+            req.app.get('db'),
+            req.params.chapter_number
+        );
+
+        if (!chapter) {
+            return res.status(404).json({
+                error: `Chapter doesn't exist`,
+            });
+        }
+
+        res.chapter = chapter;
+        next();
+    } catch(error) {
+        next(error);
+    }
+}
 
 async function checkStoryExists(req, res, next) {
     try {

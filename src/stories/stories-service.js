@@ -16,6 +16,11 @@ const StoriesService = {
             .where({ id })
             .first();
     },
+    getByChapterNumber(db, chapter_number) {
+        return db('legendum_stories')
+            .where({ chapter_number })
+            .first();
+    },
     deleteStory(db, id) {
         return db('legendum_stories')
             .where({ id })
