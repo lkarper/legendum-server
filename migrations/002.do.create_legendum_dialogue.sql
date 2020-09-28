@@ -1,7 +1,7 @@
 CREATE TABLE legendum_dialogue (
     id SERIAL PRIMARY KEY,
     story_id INTEGER
-        REFERENCES legendum_stories(id) ON DELETE CASCADE NOT NULL,
+        REFERENCES legendum_stories(chapter_number) ON DELETE CASCADE NOT NULL,
     page INTEGER NOT NULL,
     text TEXT NOT NULL,
     image_url TEXT,
