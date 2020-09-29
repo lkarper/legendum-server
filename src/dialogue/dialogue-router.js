@@ -55,15 +55,27 @@ dialogueRouter
                 })
             }
         }
-        
-        DialogueService.insertNewDialogue(
+
+        StoriesService.hasStoryWithChapterNumber(
             req.app.get('db'),
-            newDialogue
+            chapter_number
         )
-            .then(newDialogue => {
-                res.status(201)
-                    .location(path.posix.join(req.originalUrl, `/${newDialogue.id}`))
-                    .json(DialogueService.serializeDialogue(newDialogue));
+            .then(chapterNumberExists => {
+                if (!chapterNumberExists) {
+                    return res.status(404).json({
+                        error: `Chapter doesn't exist`,
+                    });
+                } else {
+                    DialogueService.insertNewDialogue(
+                        req.app.get('db'),
+                        newDialogue
+                    )
+                        .then(newDialogue => {
+                            res.status(201)
+                                .location(path.posix.join(req.originalUrl, `/${newDialogue.id}`))
+                                .json(DialogueService.serializeDialogue(newDialogue));
+                        });
+                }
             })
             .catch(next);
     });
@@ -143,16 +155,40 @@ dialogueRouter
                 }
             });
         }
-        
-        DialogueService.updateDialogue(
-            req.app.get('db'),
-            req.params.dialogue_id,
-            dialogueToUpdate
-        )
-            .then(numRowsAffected => {
-                return res.status(204).end();
-            })
-            .catch(next);
+
+        if (chapter_number) {
+            StoriesService.hasStoryWithChapterNumber(
+                req.app.get('db'),
+                chapter_number
+            )
+                .then(chapterNumberExists => {
+                    if (!chapterNumberExists) {
+                        return res.status(404).json({
+                            error: `Chapter doesn't exist`,
+                        });
+                    } else { 
+                        DialogueService.updateDialogue(
+                            req.app.get('db'),
+                            req.params.dialogue_id,
+                            dialogueToUpdate
+                        )
+                            .then(numRowsAffected => {
+                                return res.status(204).end();
+                            });                
+                    }
+                })
+                .catch(next);
+        } else {
+            DialogueService.updateDialogue(
+                req.app.get('db'),
+                req.params.dialogue_id,
+                dialogueToUpdate
+            )
+                .then(numRowsAffected => {
+                    return res.status(204).end();
+                })
+                .catch(next);
+        }
     });
 
 async function checkChapterExists(req, res, next) {
