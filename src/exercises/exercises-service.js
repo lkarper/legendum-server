@@ -1,4 +1,24 @@
+const xss = require('xss');
+
 const ExercisesService = {
+    getAllExercises(db) {
+        return db 
+            .select('*')
+            .from('legendum_exercises AS le')
+            .orderBy('le.id');
+    },
+    insertNewExercise(db, newExercise) {
+        return db('legendum_exercises')
+            .insert(newExercise)
+            .returning('*')
+            .then(([exercise]) => exercise);
+    },
+    getExerciseById(db, id) {
+        return db('legendum_exercises')
+            .select('*')
+            .where({ id })
+            .first();
+    },
     getExercisesLearnById(db, id) {
         return db
             .select(
@@ -37,17 +57,13 @@ const ExercisesService = {
             .join('legendum_exercises AS le', 'le.id', 'led.exercise_id')
             .orderBy('led.page');
     }, 
-    getAllExercises(db) {
-        return db 
-            .select('*')
-            .from('legendum_exercises AS le')
-            .orderBy('le.id');
-    },
-    insertNewExercise(db, newExercise) {
-        return db('legendum_exercises')
-            .insert(newExercise)
-            .returning('*')
-            .then(([exercise]) => exercise);
+    serializeExercise(exercise) {
+        return {
+            id: exercise.id,
+            chapter_number: exercise.chapter_number,
+            exercise_title: xss(exercise.exercise_title),
+            exercise_translation: xss(exercise.exercise_translation),
+        };
     },
 };
 
