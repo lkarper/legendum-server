@@ -12,7 +12,7 @@ exercisesRouter
     .get((req, res, next) => {
         ExercisesService.getAllExercises(req.app.get('db'))
             .then(exercises => {
-                res.json(exercises);
+                res.json(exercises.map(ExercisesService.serializeExercise));
             })
             .catch(next);
     })
@@ -62,10 +62,18 @@ exercisesRouter
                             res
                                 .status(201)
                                 .location(path.posix.join(req.originalUrl, `/${exercise.id}`))
-                                .json(exercise);
-                        })
+                                .json(ExerciseService.serializeExercise(exercise));
+                        });
                 }
-            });
+            })
+            .catch(next);
+    });
+
+exercisesRouter
+    .route('/:exercise_id')
+    .all(checkExerciseExists)
+    .get((req, res, next) => {
+        res.json(ExercisesService.serializeExercise(res.exercise));
     });
 
 exercisesRouter
@@ -94,6 +102,26 @@ exercisesRouter
             .catch(next);
     });
 
+async function checkExerciseExists(req, res, next) {
+    try {
+        const exercise = await ExercisesService.getExerciseById(
+            req.app.get('db'),
+            req.params.exercise_id
+        );
 
+        if (!exercise) {
+            return res.status(404).json({
+                error: {
+                    message: `Exercise doesn't exist`,
+                },
+            });
+        }
+
+        res.exercise = exercise;
+        next();
+    } catch(error) {
+        next(error);
+    }
+}
 
 module.exports = exercisesRouter;
