@@ -74,7 +74,8 @@ dialogueRouter
                             res.status(201)
                                 .location(path.posix.join(req.originalUrl, `/${newDialogue.id}`))
                                 .json(DialogueService.serializeDialogue(newDialogue));
-                        });
+                        })
+                        .catch(next);
                 }
             })
             .catch(next);
@@ -174,7 +175,8 @@ dialogueRouter
                         )
                             .then(numRowsAffected => {
                                 return res.status(204).end();
-                            });                
+                            })
+                            .catch(next);                
                     }
                 })
                 .catch(next);
