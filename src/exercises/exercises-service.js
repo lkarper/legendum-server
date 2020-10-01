@@ -19,6 +19,16 @@ const ExercisesService = {
             .where({ id })
             .first();
     },
+    deleteExercise(db, id) {
+        return db('legendum_exercises')
+            .where({ id })
+            .delete();
+    },
+    updateExercise(db, id, exerciseUpdates) {
+        return db('legendum_exercises')
+            .where({ id })
+            .update(exerciseUpdates);
+    },
     getExercisesLearnById(db, id) {
         return db
             .select(
