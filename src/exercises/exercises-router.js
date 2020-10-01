@@ -62,8 +62,9 @@ exercisesRouter
                             res
                                 .status(201)
                                 .location(path.posix.join(req.originalUrl, `/${exercise.id}`))
-                                .json(ExerciseService.serializeExercise(exercise));
-                        });
+                                .json(ExercisesService.serializeExercise(exercise));
+                        })
+                        .catch(next);
                 }
             })
             .catch(next);
@@ -74,6 +75,86 @@ exercisesRouter
     .all(checkExerciseExists)
     .get((req, res, next) => {
         res.json(ExercisesService.serializeExercise(res.exercise));
+    })
+    .delete(requireAuth, (req, res, next) => {
+        // Only admins may delete exercises
+        if (!req.user.admin) {
+            return res.status(401).json({
+                error: 'This account does not have admin privileges',
+            }); 
+        }
+
+        ExercisesService.deleteExercise(
+            req.app.get('db'),
+            req.params.exercise_id
+        )
+            .then(() => {
+                res.status(204).end();
+            })
+            .catch(next);
+    })
+    .patch(requireAuth, jsonBodyParser, (req, res, next) => {
+        // Only admins may delete exercises
+        if (!req.user.admin) {
+            return res.status(401).json({
+                error: 'This account does not have admin privileges',
+            }); 
+        }
+        const { 
+            chapter_number,
+            exercise_title,
+            exercise_translation,
+        } = req.body;
+
+        const exerciseToUpdate = { 
+            chapter_number,
+            exercise_title,
+            exercise_translation,
+        };
+
+        const numberOfValues = Object.values(exerciseToUpdate).filter(Boolean).length;
+        if (numberOfValues === 0) {
+            return res.status(400).json({
+                error: {
+                    message: `Request body must contain one of 'chapter_number', 'exercise_title', 'exercise_translation'.`,
+                }
+            });
+        }
+
+        if (chapter_number) {
+            StoriesService.hasStoryWithChapterNumber(
+                req.app.get('db'),
+                chapter_number
+            )
+                .then(chapterNumberExists => {
+                    if (!chapterNumberExists) {
+                        return res.status(404).json({
+                            error: `Chapter doesn't exist`,
+                        });
+                    } else {
+                        ExercisesService.updateExercise(
+                            req.app.get('db'),
+                            req.params.exercise_id,
+                            exerciseToUpdate
+                        )
+                            .then(numRowsAffected => {
+                                res.status(204).end();
+                            })
+                            .catch(next);
+                    }
+                })
+                .catch(next);
+        } else {
+            ExercisesService.updateExercise(
+                req.app.get('db'),
+                req.params.exercise_id,
+                exerciseToUpdate
+            )
+                .then(numRowsAffected => {
+                    res.status(204).end();
+                })
+                .catch(next);
+        }
     });
 
 exercisesRouter
