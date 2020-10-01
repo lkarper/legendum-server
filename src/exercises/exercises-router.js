@@ -1,6 +1,7 @@
 const path = require('path');
 const express = require('express');
 const { requireAuth } = require('../middleware/jwt-auth');
+const { checkChapterExists } = require('../middleware/chapt-mw');
 const StoriesService = require('../stories/stories-service');
 const ExercisesService = require('./exercises-service');
 
@@ -158,14 +159,15 @@ exercisesRouter
     });
 
 exercisesRouter
-    .route('/:exercises_id/learn')
+    .route('/:chapter_number/learn')
+    .all(checkChapterExists)
     .get((req, res, next) => {
-        ExercisesService.getExercisesLearnById(
+        ExercisesService.getExercisesLearnByChapter(
             req.app.get('db'),
-            req.params.exercises_id
+            req.params.chapter_number
         )
             .then(pages => {
-                res.json(pages);
+                res.json(pages.map(ExercisesService.serializePage));
             })
             .catch(next);
     });

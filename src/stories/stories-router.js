@@ -1,6 +1,7 @@
 const express = require('express');
 const path = require('path');
 const { requireAuth } = require('../middleware/jwt-auth');
+const { checkChapterExists } = require('../middleware/chapt-mw');
 const StoriesService = require('./stories-service');
 
 const storiesRouter = express.Router();
@@ -149,26 +150,6 @@ storiesRouter
                 .catch(next);
         }
     });
-
-async function checkChapterExists(req, res, next) {
-    try {
-        const chapter = await StoriesService.getByChapterNumber(
-            req.app.get('db'),
-            req.params.chapter_number
-        );
-
-        if (!chapter) {
-            return res.status(404).json({
-                error: `Chapter doesn't exist`,
-            });
-        }
-
-        res.chapter = chapter;
-        next();
-    } catch(error) {
-        next(error);
-    }
-}
 
 async function checkStoryExists(req, res, next) {
     try {
