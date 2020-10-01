@@ -42,7 +42,13 @@ const ExercisesService = {
             .select('*')
             .from('legendum_exercises AS le')
             .orderBy('le.id');
-    }
+    },
+    insertNewExercise(db, newExercise) {
+        return db('legendum_exercises')
+            .insert(newExercise)
+            .returning('*')
+            .then(([exercise]) => exercise);
+    },
 };
 
 module.exports = ExercisesService;
