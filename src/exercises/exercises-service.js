@@ -29,11 +29,11 @@ const ExercisesService = {
             .where({ id })
             .update(exerciseUpdates);
     },
-    getExercisesLearnById(db, id) {
+    getExercisesLearnByChapter(db, chapter_number) {
         return db
             .select(
                 'lel.id', 
-                'lel.exercise_id', 
+                'lel.chapter_number', 
                 'lel.page', 
                 'lel.text', 
                 'lel.image_url',
@@ -55,8 +55,8 @@ const ExercisesService = {
                 )
             )
             .from('legendum_exercises_learn AS lel')
-            .where('lel.exercise_id', id)
-            .join('legendum_exercises AS le', 'lel.exercise_id', 'le.id')
+            .where('lel.chapter_number', chapter_number)
+            .join('legendum_exercises AS le', 'lel.chapter_number', 'le.chapter_number')
             .orderBy('lel.page');
     },
     getExercisesDoById(db, id) {
@@ -75,6 +75,25 @@ const ExercisesService = {
             exercise_translation: xss(exercise.exercise_translation),
         };
     },
+    serializePage(page) {
+        const hints = page.hints || [];
+        return {
+            id: page.id,
+            chapter_number: page.chapter_number,
+            text: xss(page.text),
+            image_url: xss(page.image_url),
+            image_alt_text: xss(page.image_alt_text),
+            background_image_url: xss(page.background_image_url),
+            background_image_alt_text: xss(page.background_image_alt_text),
+            exercise_title: xss(page.exercise_title),
+            exercise_translation: xss(page.exercise_translation),
+            hints: hints.map(hint => ({
+                id: hint.id,
+                hint_order_number: hint.hint_order_number,
+                hint: xss(hint.hint),
+            })),
+        };
+    }
 };
 
 module.exports = ExercisesService;
