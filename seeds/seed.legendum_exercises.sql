@@ -6,9 +6,9 @@ TRUNCATE
 
 SET CLIENT_ENCODING to 'utf8';
 
-INSERT INTO legendum_exercises (exercise_title, exercise_translation)
+INSERT INTO legendum_exercises (exercise_title, chapter_number, exercise_translation)
 VALUES 
-    ('Exercitium prīmum: Salūtātiōnēs', '(Exercise one: Greetings)'),
-    ('Exercitium Secundum: Ubī est...?', '(Exercise two: Where is...?)');
+    ('Exercitium prīmum: Salūtātiōnēs', 1, '(Exercise one: Greetings)'),
+    ('Exercitium Secundum: Ubī est...?', 2, '(Exercise two: Where is...?)');
 
 COMMIT;
