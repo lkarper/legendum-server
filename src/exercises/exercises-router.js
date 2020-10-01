@@ -17,7 +17,7 @@ exercisesRouter
             .catch(next);
     })
     .post(requireAuth, jsonBodyParser, (req, res, next) => {
-        // Only admins may create new exxercises
+        // Only admins may create new exercises
         if (!req.user.admin) {
             return res.status(401).json({
                 error: 'This account does not have admin privileges',
