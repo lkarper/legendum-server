@@ -6,7 +6,7 @@ TRUNCATE
 
 SET CLIENT_ENCODING to 'utf8';
 
-INSERT INTO legendum_exercises_learn (exercise_id, page, text, image_url, image_alt_text, background_image_url, background_image_alt_text)
+INSERT INTO legendum_exercises_learn (chapter_number, page, text, image_url, image_alt_text, background_image_url, background_image_alt_text)
 VALUES
     (1, 1, 'Lūcius: “Salvē!”', 'https://lh3.googleusercontent.com/pw/ACtC-3dYaZ1TU_wVYNQ2GpPE-KSD56h6ULoUsm0gaQkmB0ntMvb7KX_6In2wKBoNMN9IOhG1LWpMVqx5cd7Y8teYu_4A9TrLx7o3CcGfIO-dKPd8_lZ9larkv1z4oFfIAuBObjccseigTDdr_N38rOKzfp0=s600-no?authuser=2', 'A man named Lucius speaks to a woman named Iulia.', 'https://lh3.googleusercontent.com/pw/ACtC-3diNCdnhH9P5Et2cmOMWraVXbbbQOZoq9IRBUYcadNl7JNFyVQ9W1WXJed9-6SLCiGc5yaxC1Ui4KKwOli-yA9TXO48dY3H-5Wqw1bRmEugP9VW4yhXrCAoNzXlZ1hb74S4KWVJ-kbdjZLgl-r1IV3F=w1178-h883-no?authuser=2', 'A sunny day in the Italian countryside.'),
     (1, 2, 'Lūcius: “Egō sum Lūcius!”', 'https://lh3.googleusercontent.com/pw/ACtC-3dYaZ1TU_wVYNQ2GpPE-KSD56h6ULoUsm0gaQkmB0ntMvb7KX_6In2wKBoNMN9IOhG1LWpMVqx5cd7Y8teYu_4A9TrLx7o3CcGfIO-dKPd8_lZ9larkv1z4oFfIAuBObjccseigTDdr_N38rOKzfp0=s600-no?authuser=2', 'A man named Lucius speaks to a woman named Iulia.', 'https://lh3.googleusercontent.com/pw/ACtC-3diNCdnhH9P5Et2cmOMWraVXbbbQOZoq9IRBUYcadNl7JNFyVQ9W1WXJed9-6SLCiGc5yaxC1Ui4KKwOli-yA9TXO48dY3H-5Wqw1bRmEugP9VW4yhXrCAoNzXlZ1hb74S4KWVJ-kbdjZLgl-r1IV3F=w1178-h883-no?authuser=2', 'A sunny day in the Italian countryside.'),
