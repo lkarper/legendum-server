@@ -7,6 +7,12 @@ const ExercisesService = {
             .from('legendum_exercises AS le')
             .orderBy('le.id');
     },
+    checkChapterNumberAlreadyInUse(db, chapter_number) {
+        return db('legendum_exercises')
+            .where({ chapter_number })
+            .first()
+            .then(chapter_number => !!chapter_number);
+    },
     insertNewExercise(db, newExercise) {
         return db('legendum_exercises')
             .insert(newExercise)

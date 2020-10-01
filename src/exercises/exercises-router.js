@@ -45,30 +45,43 @@ exercisesRouter
             }
         }
 
-        StoriesService.hasStoryWithChapterNumber(
+        ExercisesService.checkChapterNumberAlreadyInUse(
             req.app.get('db'),
             chapter_number
         )
-            .then(chapterNumberExists => {
-                if (!chapterNumberExists) {
-                    return res.status(404).json({
-                        error: `Chapter doesn't exist`,
-                    });
-                } else {
-                    ExercisesService.insertNewExercise(
-                        req.app.get('db'),
-                        newExercise
-                    )
-                        .then(exercise => {
-                            res
-                                .status(201)
-                                .location(path.posix.join(req.originalUrl, `/${exercise.id}`))
-                                .json(ExercisesService.serializeExercise(exercise));
-                        })
-                        .catch(next);
-                }
-            })
-            .catch(next);
+        .then(chapterNumberInUse => {
+            if (chapterNumberInUse) {
+                return res.status(400).json({
+                    error: `Chapter number is already in use`,
+                });
+            } else  {
+                StoriesService.hasStoryWithChapterNumber(
+                    req.app.get('db'),
+                    chapter_number
+                )
+                    .then(chapterNumberExists => {
+                        if (!chapterNumberExists) {
+                            return res.status(404).json({
+                                error: `Chapter doesn't exist`,
+                            });
+                        } else {
+                            ExercisesService.insertNewExercise(
+                                req.app.get('db'),
+                                newExercise
+                            )
+                                .then(exercise => {
+                                    res
+                                        .status(201)
+                                        .location(path.posix.join(req.originalUrl, `/${exercise.id}`))
+                                        .json(ExercisesService.serializeExercise(exercise));
+                                })
+                                .catch(next);
+                        }
+                    })
+                    .catch(next);
+            }
+        })
+        .catch(next);
     });
 
 exercisesRouter
@@ -122,24 +135,37 @@ exercisesRouter
             });
         }
 
-        if (chapter_number) {
-            StoriesService.hasStoryWithChapterNumber(
+        if (chapter_number && chapter_number !== res.exercise.chapter_number) {
+            ExercisesService.checkChapterNumberAlreadyInUse(
                 req.app.get('db'),
                 chapter_number
             )
-                .then(chapterNumberExists => {
-                    if (!chapterNumberExists) {
-                        return res.status(404).json({
-                            error: `Chapter doesn't exist`,
+                .then(chapterNumberInUse => {
+                    if (chapterNumberInUse) {
+                        return res.status(400).json({
+                            error: `Chapter number is already in use`,
                         });
                     } else {
-                        ExercisesService.updateExercise(
+                        StoriesService.hasStoryWithChapterNumber(
                             req.app.get('db'),
-                            req.params.exercise_id,
-                            exerciseToUpdate
+                            chapter_number
                         )
-                            .then(numRowsAffected => {
-                                res.status(204).end();
+                            .then(chapterNumberExists => {
+                                if (!chapterNumberExists) {
+                                    return res.status(404).json({
+                                        error: `Chapter doesn't exist`,
+                                    });
+                                } else {
+                                    ExercisesService.updateExercise(
+                                        req.app.get('db'),
+                                        req.params.exercise_id,
+                                        exerciseToUpdate
+                                    )
+                                        .then(numRowsAffected => {
+                                            res.status(204).end();
+                                        })
+                                        .catch(next);
+                                }
                             })
                             .catch(next);
                     }
