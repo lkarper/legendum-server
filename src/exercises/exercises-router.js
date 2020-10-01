@@ -185,7 +185,7 @@ exercisesRouter
     });
 
 exercisesRouter
-    .route('/:chapter_number/learn')
+    .route('/:chapter_number/learn-pages')
     .all(checkChapterExists)
     .get((req, res, next) => {
         ExercisesService.getExercisesLearnByChapter(
@@ -193,13 +193,133 @@ exercisesRouter
             req.params.chapter_number
         )
             .then(pages => {
-                res.json(pages.map(ExercisesService.serializePage));
+                res.json(pages.map(ExercisesService.serializeLearnPage));
+            })
+            .catch(next);
+    })
+    .post(requireAuth, (req, res, next) => {
+        // Only admins may add exercise learn-pages
+        if (!req.user.admin) {
+            return res.status(401).json({
+                error: 'This account does not have admin privileges',
+            }); 
+        }
+
+        const {
+            page,
+            text,
+            image_url,
+            image_alt_text,
+            background_image_url,
+            background_image_alt_text,
+        } = req.body;
+
+        const newPage = {
+            page,
+            text,
+        };
+
+        for (const [key, value] of Object.entries(newPage)) {
+            if (value == null) {
+                return res.status(400).json({
+                    error: {
+                        message: `Missing '${key}' in request body`,
+                    },
+                });
+            }
+        }
+
+        newPage.image_url = image_url;
+        newPage.image_alt_text = image_alt_text;
+        newPage.background_image_url = background_image_url;
+        newPage.background_image_alt_text = background_image_alt_text;
+        newPage.chapter_number = req.params.chapter_number;
+
+        ExercisesService.insertExercisesLearnPage(
+            req.app.get('db'),
+            newPage
+        )
+            .then(newPage => {
+                res
+                    .status(201)
+                    .location(path.posix.join(req.originalUrl, `/${newPage.id}`))
+                    .json(ExercisesService.serializeLearnPage(newPage));
+            })
+            .catch(next);
+
+    });
+
+exercisesRouter
+    .route('/:chapter_number/learn-pages/:page_id')
+    .all(checkChapterExists)
+    .all(checkLearnPageExists)
+    .get((req, res, next) => {
+        return res.json(ExercisesService.serializeLearnPage(res.learnPage));
+    })
+    .delete(requireAuth, (req, res, next) => {
+        // Only admins may delete exercise learn-pages
+        if (!req.user.admin) {
+            return res.status(401).json({
+                error: 'This account does not have admin privileges',
+            }); 
+        }
+
+        ExercisesService.removeExercisesLearnPage(
+            req.app.get('db'),
+            req.params.page_id
+        )
+            .then(() => {
+                return res.status(204).end();
+            })
+            .catch(next);
+    })
+    .patch(requireAuth, (req, res, next) => {
+        // Only admins may update exercise learn-pages
+        if (!req.user.admin) {
+            return res.status(401).json({
+                error: 'This account does not have admin privileges',
+            }); 
+        }
+
+        const {
+            page,
+            text,
+            image_url,
+            image_alt_text,
+            background_image_url,
+            background_image_alt_text,
+        } = req.body;
+
+        const learnPageUpdates = {
+            page,
+            text,
+            image_url,
+            image_alt_text,
+            background_image_url,
+            background_image_alt_text,
+        };
+        
+        const numberOfValues = Object.values(learnPageUpdates).filter(Boolean).length; 
+        if (numberOfValues === 0) {
+            return res.status(400).json({
+                error: `Request body must contain one of 'page', 'text', 'image_url', 'image_alt_text', 'background_image_url', 'background_image_alt_text'.`,
+            });
+        }
+
+        ExercisesService.updateExercisesLearnPage(
+            req.app.get('db'),
+            req.params.page_id,
+            learnPageUpdates
+        )
+            .then(numRowsAffected => {
+                res.status(204).end();
             })
             .catch(next);
     });
 
+// Pick up here
 exercisesRouter
-    .route('/:exercises_id/do')
+    .route('/:exercises_id/do-pages')
     .get((req, res, next) => {
         ExercisesService.getExercisesDoById(
             req.app.get('db'),
@@ -210,6 +330,27 @@ exercisesRouter
             })
             .catch(next);
     });
+
+async function checkLearnPageExists(req, res, next) {
+    try {
+        const learnPage = await ExercisesService.getExercisesLearnPageById(
+            req.app.get('db'),
+            req.params.chapter_number,
+            req.params.page_id
+        );
+
+        if (!learnPage) {
+            return res.status(404).json({
+                error: `Exercise learn page not found`,
+            });
+        }
+
+        res.learnPage = learnPage;
+        next();
+    } catch(error) {
+        next(error);
+    }
+}
 
 async function checkExerciseExists(req, res, next) {
     try {

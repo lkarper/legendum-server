@@ -65,6 +65,36 @@ const ExercisesService = {
             .join('legendum_exercises AS le', 'lel.chapter_number', 'le.chapter_number')
             .orderBy('lel.page');
     },
+    insertExercisesLearnPage(db, newPage) {
+        return db('legendum_exercises_learn')
+            .insert(newPage)
+            .returning('*')
+            .then(([newPage]) => {
+                return this.getExercisesLearnByChapter(
+                    db, newPage.chapter_number
+                )
+                    .where('lel.id', newPage.id)
+                    .first();
+            });
+    },
+    getExercisesLearnPageById(db, chapter_number, id) {
+        return this.getExercisesLearnByChapter(
+            db,
+            chapter_number
+        )
+            .where('lel.id', id)
+            .first();
+    },
+    removeExercisesLearnPage(db, id) {
+        return db('legendum_exercises_learn')
+            .where({ id })
+            .delete();
+    },
+    updateExercisesLearnPage(db, id, pageUpdates) {
+        return db('legendum_exercises_learn')
+            .where({ id })
+            .update(pageUpdates);
+    },
     getExercisesDoById(db, id) {
         return db
             .select('*')
@@ -81,11 +111,12 @@ const ExercisesService = {
             exercise_translation: xss(exercise.exercise_translation),
         };
     },
-    serializePage(page) {
+    serializeLearnPage(page) {
         const hints = page.hints || [];
         return {
             id: page.id,
             chapter_number: page.chapter_number,
+            page: page.page,
             text: xss(page.text),
             image_url: xss(page.image_url),
             image_alt_text: xss(page.image_alt_text),
