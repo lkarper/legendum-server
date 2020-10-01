@@ -227,7 +227,7 @@ async function checkDialogueExists(req, res, next) {
         }
 
         res.dialogue = dialogue;
-        next()
+        next();
     } catch(error) {
         next(error);
     }
