@@ -6,8 +6,8 @@ CREATE TYPE question_category AS ENUM (
 
 CREATE TABLE legendum_exercises_do (
     id SERIAL PRIMARY KEY,
-    exercise_id INTEGER
-        REFERENCES legendum_exercises(id) ON DELETE CASCADE NOT NULL,
+    chapter_number INTEGER
+        REFERENCES legendum_exercises(chapter_number) ON DELETE CASCADE NOT NULL,
     page INTEGER NOT NULL,
     dialogue TEXT,
     dialogue_look_back BOOLEAN,

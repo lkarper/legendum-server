@@ -6,7 +6,7 @@ TRUNCATE
 
 SET CLIENT_ENCODING to 'utf8';
 INSERT INTO legendum_exercises_do (
-    exercise_id, 
+    chapter_number, 
     page, 
     dialogue,
     dialogue_look_back,
