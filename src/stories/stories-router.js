@@ -1,6 +1,6 @@
 const express = require('express');
 const path = require('path');
-const { requireAuth } = require('../middleware/jwt-auth');
+const { requireAuth, verifyAdminPrivileges } = require('../middleware/jwt-auth');
 const { checkChapterExists } = require('../middleware/chapt-mw');
 const StoriesService = require('./stories-service');
 
@@ -14,7 +14,7 @@ storiesRouter
             .then(stories => res.json(stories.map(StoriesService.serializeStory)))
             .catch(next);
     })
-    .post(requireAuth, jsonBodyParser, (req, res, next) => {
+    .post(requireAuth, verifyAdminPrivileges, jsonBodyParser, (req, res, next) => {
         const { 
             story_title,
             chapter_number,
@@ -24,13 +24,6 @@ storiesRouter
             story_title,
             chapter_number,
         };
-
-        // Only admins may create new story content
-        if (!req.user.admin) {
-            return res.status(401).json({
-                error: 'This account does not have admin privileges',
-            });
-        }
 
         for (const [key, value] of Object.entries(story)) {
             if (value == null) {
@@ -80,14 +73,7 @@ storiesRouter
             StoriesService.serializeStory(res.story)
         );
     })
-    .delete(requireAuth, (req, res, next) => {
-        // Only admins may delete stories
-        if (!req.user.admin) {
-            return res.status(401).json({
-                error: 'This account does not have admin privileges',
-            });
-        }
-
+    .delete(requireAuth, verifyAdminPrivileges, (req, res, next) => {
         StoriesService.deleteStory(
             req.app.get('db'),
             req.params.story_id
@@ -95,14 +81,7 @@ storiesRouter
             .then(() => res.status(204).end())
             .catch(next);
     })
-    .patch(requireAuth, jsonBodyParser, (req, res, next) => {
-        // Only admins may update story content
-        if (!req.user.admin) {
-            return res.status(401).json({
-                error: 'This account does not have admin privileges',
-            });
-        }
-
+    .patch(requireAuth, verifyAdminPrivileges, jsonBodyParser, (req, res, next) => {
         const {
             story_title,
             chapter_number,

@@ -34,6 +34,17 @@ function requireAuth(req, res, next) {
     }
 }
 
+function verifyAdminPrivileges(req, res, next) {
+    if (!req.user.admin) {
+        return res.status(401).json({
+            error: 'This account does not have admin privileges',
+        }); 
+    }
+
+    next();
+}
+
 module.exports = {
     requireAuth,
+    verifyAdminPrivileges,
 };

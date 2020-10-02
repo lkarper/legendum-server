@@ -1,6 +1,6 @@
 const path = require('path');
 const express = require('express');
-const { requireAuth } = require('../middleware/jwt-auth');
+const { requireAuth, verifyAdminPrivileges } = require('../middleware/jwt-auth');
 const { checkChapterExists } = require('../middleware/chapt-mw');
 const StoriesService = require('../stories/stories-service');
 const DialogueService = require('./dialogue-service');
@@ -17,14 +17,7 @@ dialogueRouter
             })
             .catch(next);
     })
-    .post(requireAuth, jsonBodyParser, (req, res, next) => {
-        // Only admins may create new dialogue content
-        if (!req.user.admin) {
-            return res.status(401).json({
-                error: 'This account does not have admin privileges',
-            });
-        }
-
+    .post(requireAuth, verifyAdminPrivileges, jsonBodyParser, (req, res, next) => {
         const {
             chapter_number,
             page,
@@ -102,14 +95,7 @@ dialogueRouter
     .get((req, res, next) => {
         return res.json(DialogueService.serializeDialogue(res.dialogue));
     })
-    .delete(requireAuth, (req, res, next) => {
-        // Only admins may delete dialogue content
-        if (!req.user.admin) {
-            return res.status(401).json({
-                error: 'This account does not have admin privileges',
-            });
-        }
-
+    .delete(requireAuth, verifyAdminPrivileges, (req, res, next) => {
         DialogueService.removeDialogue(
             req.app.get('db'),
             res.dialogue.id
@@ -117,14 +103,7 @@ dialogueRouter
             .then(() => res.status(204).end())
             .catch(next);
     })
-    .patch(requireAuth, jsonBodyParser, (req, res, next) => {
-        // Only admins may update dialogue content
-        if (!req.user.admin) {
-            return res.status(401).json({
-                error: 'This account does not have admin privileges',
-            });
-        }
-
+    .patch(requireAuth, verifyAdminPrivileges, jsonBodyParser, (req, res, next) => {
         const {
             chapter_number,
             page,
