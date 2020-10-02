@@ -153,7 +153,9 @@ describe('Stories endpoints', () => {
                 return supertest(app)
                     .get('/api/stories/by-chapter/1')
                     .expect(404, {
-                        error: `Chapter doesn't exist`,
+                        error: {
+                            message: `Chapter doesn't exist`,
+                        },
                     });
             });
         });
