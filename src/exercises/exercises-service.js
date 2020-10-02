@@ -5,7 +5,7 @@ const ExercisesService = {
         return db 
             .select('*')
             .from('legendum_exercises AS le')
-            .orderBy('le.id');
+            .orderBy('le.chapter_number');
     },
     checkChapterNumberAlreadyInUse(db, chapter_number) {
         return db('legendum_exercises')
@@ -95,6 +95,34 @@ const ExercisesService = {
             .where({ id })
             .update(pageUpdates);
     },
+    getHintsByLearnPageId(db, exercise_page_id) {
+        return db('legendum_exercises_learn_hints')
+            .select('*')
+            .where({ exercise_page_id })
+            .orderBy('hint_order_number');
+    },
+    insertHint(db, newHint) {
+        return db('legendum_exercises_learn_hints')
+            .insert(newHint)
+            .returning('*')
+            .then(([hint]) => hint);
+    },
+    getHintById(db, id) {
+        return db('legendum_exercises_learn_hints')
+            .select('*')
+            .where({ id })
+            .first();
+    },
+    removeHint(db, id) {
+        return db('legendum_exercises_learn_hints')
+            .where({ id })
+            .delete();
+    },
+    updateHint(db, id, hintUpdates) {
+        return db('legendum_exercises_learn_hints')
+            .where({ id })
+            .update(hintUpdates);
+    },
     getExercisesDoById(db, id) {
         return db
             .select('*')
@@ -130,7 +158,15 @@ const ExercisesService = {
                 hint: xss(hint.hint),
             })),
         };
-    }
+    },
+    serializeHint(hint) {
+        return {
+            id: hint.id,
+            exercise_page_id: hint.exercise_page_id,
+            hint_order_number: hint.hint_order_number,
+            hint: xss(hint.hint),
+        };
+    },
 };
 
 module.exports = ExercisesService;

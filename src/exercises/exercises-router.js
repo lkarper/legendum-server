@@ -317,19 +317,155 @@ exercisesRouter
             .catch(next);
     });
 
+exercisesRouter
+    .route('/:chapter_number/learn-pages/:page_id/hints')
+    .all(checkChapterExists)
+    .all(checkLearnPageExists)
+    .get((req, res, next) => {
+        ExercisesService.getHintsByLearnPageId(
+            req.app.get('db'),
+            req.params.page_id
+        )
+            .then(hints => {
+                res.json(hints.map(ExercisesService.serializeHint));
+            })
+            .catch(next);
+    })
+    .post(requireAuth, jsonBodyParser, (req, res, next) => {
+        // Only admins may post hints
+        if (!req.user.admin) {
+            return res.status(401).json({
+                error: 'This account does not have admin privileges',
+            }); 
+        }
+
+        const {
+            hint_order_number,
+            hint,
+        } = req.body;
+
+        const newHint = {
+            hint_order_number,
+            hint,
+        };
+
+        for (const [key, value] of Object.entries(newHint)) {
+            if (value == null) {
+                return res.status(400).json({
+                    error: `Missing '${key}' in request body`,
+                });
+            }
+        }
+
+        newHint.exercise_page_id = req.params.page_id;
+
+        ExercisesService.insertHint(
+            req.app.get('db'),
+            newHint
+        )
+            .then(hint => {
+                res
+                    .status(201)
+                    .location(path.posix.join(req.originalUrl, `/${hint.id}`))
+                    .json(ExercisesService.serializeHint(hint));
+            })
+            .catch(next);
+    });
+
+exercisesRouter
+    .route('/:chapter_number/learn-pages/:page_id/hints/:hint_id')
+    .all(checkChapterExists)
+    .all(checkLearnPageExists)
+    .all(checkHintExists)
+    .get((req, res, next) => {
+        return res.json(ExercisesService.serializeHint(res.hint));
+    })
+    .delete(requireAuth, (req, res, next) => {
+        // Only admins may delete hints
+        if (!req.user.admin) {
+            return res.status(401).json({
+                error: 'This account does not have admin privileges',
+            }); 
+        }
+
+        ExercisesService.removeHint(
+            req.app.get('db'),
+            req.params.hint_id
+        )
+            .then(() => {
+                res.status(204).end();
+            })
+            .catch(next);
+    })
+    .patch(requireAuth, jsonBodyParser, (req, res, next) => {
+        // Only admins may delete hints
+        if (!req.user.admin) {
+            return res.status(401).json({
+                error: 'This account does not have admin privileges',
+            }); 
+        }
+        
+        const {
+            hint_order_number,
+            hint,
+        } = req.body;
+
+        const hintUpdates = {
+            hint_order_number,
+            hint,
+        };
+
+        const numberOfValues = Object.values(hintUpdates).filter(Boolean).length;
+        if (numberOfValues === 0) {
+            return res.status(400).json({
+                error: `Request body must contain one of 'hint_order_number' or 'hint'.`,
+            });
+        }
+
+        ExercisesService.updateHint(
+            req.app.get('db'),
+            req.params.hint_id,
+            hintUpdates
+        )
+            .then(numRowsAffected => {
+                res.status(204).end();
+            })
+            .catch(next);
+    });
+
 // Pick up here
 exercisesRouter
-    .route('/:exercises_id/do-pages')
+    .route('/:chapter_number/do-pages')
     .get((req, res, next) => {
         ExercisesService.getExercisesDoById(
             req.app.get('db'),
-            req.params.exercises_id
+            req.params.chapter_number
         )
             .then(pages => {
                 res.json(pages);
             })
             .catch(next);
     });
+
+async function checkHintExists(req, res, next) {
+    try {
+        const hint = await ExercisesService.getHintById(
+            req.app.get('db'),
+            req.params.hint_id
+        );
+
+        if (!hint) {
+            return res.status(404).json({
+                error: `Hint not found`,
+            });
+        }
+
+        res.hint = hint;
+        next();
+    } catch(error) {
+        next(error);
+    }
+}
 
 async function checkLearnPageExists(req, res, next) {
     try {
