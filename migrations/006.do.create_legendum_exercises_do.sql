@@ -12,7 +12,7 @@ CREATE TABLE legendum_exercises_do (
     dialogue TEXT,
     dialogue_look_back BOOLEAN,
     dialogue_to_look_for TEXT,
-    question_type question_category,
+    question_type question_category NOT NULL,
     question TEXT NOT NULL,
     incorrect_response_option_1 TEXT,
     incorrect_response_option_2 TEXT,
