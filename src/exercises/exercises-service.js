@@ -123,14 +123,35 @@ const ExercisesService = {
             .where({ id })
             .update(hintUpdates);
     },
-    getExercisesDoById(db, id) {
+    getExercisesDoByChapter(db, chapter_number) {
         return db
             .select('*')
             .from('legendum_exercises_do AS led')
-            .where('led.exercise_id', id)
-            .join('legendum_exercises AS le', 'le.id', 'led.exercise_id')
+            .where('led.chapter_number', chapter_number)
+            .join('legendum_exercises AS le', 'le.chapter_number', 'led.chapter_number')
             .orderBy('led.page');
     }, 
+    insertExerciseDoPage(db, newDoPage) {
+        return db('legendum_exercises_do')
+            .insert(newDoPage)
+            .returning('*')
+            .then(([doPage]) => doPage)
+            .then(doPage => 
+                this.getExercisesDoByChapter(db, doPage.chapter_number)
+                    .where('led.id', doPage.id)
+                    .first()
+            );
+    },
+    getExercisesDoPageById(db, chapter_number, id) {
+        return this.getExercisesDoByChapter(db, chapter_number)
+            .where('led.id', id)
+            .first();
+    },
+    removeExercisesDoPage(db, id) {
+        return db('legendum_exercises_do')
+            .where({ id })
+            .delete();
+    },
     serializeExercise(exercise) {
         return {
             id: exercise.id,
@@ -167,6 +188,36 @@ const ExercisesService = {
             hint: xss(hint.hint),
         };
     },
+    serializeDoPage(page) {
+        return {
+            id: page.id,
+            chapter_number: page.chapter_number,
+            page: page.page,
+            dialogue: xss(page.dialogue),
+            dialogue_look_back: page.dialogue_look_back,
+            dialogue_to_look_for: xss(page.dialogue_to_look_for || ''),
+            question_type: page.question_type,
+            question: xss(page.question),
+            incorrect_response_option_1: xss(page.incorrect_response_option_1),
+            incorrect_response_option_2: xss(page.incorrect_response_option_2),
+            incorrect_response_option_3: xss(page.incorrect_response_option_3),
+            correct_response: xss(page.correct_response),
+            response_if_incorrect_1: xss(page.response_if_incorrect_1),
+            response_if_incorrect_2: xss(page.response_if_incorrect_2),
+            response_if_incorrect_3: xss(page.response_if_incorrect_3),
+            look_ahead: page.look_ahead,
+            look_back: page.look_back,
+            property_to_save: xss(page.property_to_save || ''),
+            property_to_look_for: xss(page.property_to_look_for || ''),
+            image_url: xss(page.image_url),
+            image_alt_text: xss(page.image_alt_text),
+            input_label: xss(page.input_label || ''),
+            background_image_url: xss(page.background_image_url),
+            background_image_alt_text: xss(page.background_image_alt_text),
+            exercise_title: xss(page.exercise_title),
+            exercise_translation: xss(page.exercise_translation),
+        };
+    }
 };
 
 module.exports = ExercisesService;

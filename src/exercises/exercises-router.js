@@ -1,6 +1,6 @@
 const path = require('path');
 const express = require('express');
-const { requireAuth } = require('../middleware/jwt-auth');
+const { requireAuth, verifyAdminPrivileges } = require('../middleware/jwt-auth');
 const { checkChapterExists } = require('../middleware/chapt-mw');
 const StoriesService = require('../stories/stories-service');
 const ExercisesService = require('./exercises-service');
@@ -17,13 +17,7 @@ exercisesRouter
             })
             .catch(next);
     })
-    .post(requireAuth, jsonBodyParser, (req, res, next) => {
-        // Only admins may create new exercises
-        if (!req.user.admin) {
-            return res.status(401).json({
-                error: 'This account does not have admin privileges',
-            });
-        }
+    .post(requireAuth, verifyAdminPrivileges, jsonBodyParser, (req, res, next) => {
 
         const { 
             chapter_number,
@@ -90,14 +84,7 @@ exercisesRouter
     .get((req, res, next) => {
         res.json(ExercisesService.serializeExercise(res.exercise));
     })
-    .delete(requireAuth, (req, res, next) => {
-        // Only admins may delete exercises
-        if (!req.user.admin) {
-            return res.status(401).json({
-                error: 'This account does not have admin privileges',
-            }); 
-        }
-
+    .delete(requireAuth, verifyAdminPrivileges, (req, res, next) => {
         ExercisesService.deleteExercise(
             req.app.get('db'),
             req.params.exercise_id
@@ -107,13 +94,7 @@ exercisesRouter
             })
             .catch(next);
     })
-    .patch(requireAuth, jsonBodyParser, (req, res, next) => {
-        // Only admins may delete exercises
-        if (!req.user.admin) {
-            return res.status(401).json({
-                error: 'This account does not have admin privileges',
-            }); 
-        }
+    .patch(requireAuth, verifyAdminPrivileges, jsonBodyParser, (req, res, next) => {
         const { 
             chapter_number,
             exercise_title,
@@ -197,14 +178,7 @@ exercisesRouter
             })
             .catch(next);
     })
-    .post(requireAuth, (req, res, next) => {
-        // Only admins may add exercise learn-pages
-        if (!req.user.admin) {
-            return res.status(401).json({
-                error: 'This account does not have admin privileges',
-            }); 
-        }
-
+    .post(requireAuth, verifyAdminPrivileges, (req, res, next) => {
         const {
             page,
             text,
@@ -256,14 +230,7 @@ exercisesRouter
     .get((req, res, next) => {
         return res.json(ExercisesService.serializeLearnPage(res.learnPage));
     })
-    .delete(requireAuth, (req, res, next) => {
-        // Only admins may delete exercise learn-pages
-        if (!req.user.admin) {
-            return res.status(401).json({
-                error: 'This account does not have admin privileges',
-            }); 
-        }
-
+    .delete(requireAuth, verifyAdminPrivileges, (req, res, next) => {
         ExercisesService.removeExercisesLearnPage(
             req.app.get('db'),
             req.params.page_id
@@ -273,14 +240,7 @@ exercisesRouter
             })
             .catch(next);
     })
-    .patch(requireAuth, (req, res, next) => {
-        // Only admins may update exercise learn-pages
-        if (!req.user.admin) {
-            return res.status(401).json({
-                error: 'This account does not have admin privileges',
-            }); 
-        }
-
+    .patch(requireAuth, verifyAdminPrivileges, (req, res, next) => {
         const {
             page,
             text,
@@ -331,14 +291,7 @@ exercisesRouter
             })
             .catch(next);
     })
-    .post(requireAuth, jsonBodyParser, (req, res, next) => {
-        // Only admins may post hints
-        if (!req.user.admin) {
-            return res.status(401).json({
-                error: 'This account does not have admin privileges',
-            }); 
-        }
-
+    .post(requireAuth, verifyAdminPrivileges, jsonBodyParser, (req, res, next) => {
         const {
             hint_order_number,
             hint,
@@ -380,14 +333,7 @@ exercisesRouter
     .get((req, res, next) => {
         return res.json(ExercisesService.serializeHint(res.hint));
     })
-    .delete(requireAuth, (req, res, next) => {
-        // Only admins may delete hints
-        if (!req.user.admin) {
-            return res.status(401).json({
-                error: 'This account does not have admin privileges',
-            }); 
-        }
-
+    .delete(requireAuth, verifyAdminPrivileges, (req, res, next) => {
         ExercisesService.removeHint(
             req.app.get('db'),
             req.params.hint_id
@@ -397,14 +343,7 @@ exercisesRouter
             })
             .catch(next);
     })
-    .patch(requireAuth, jsonBodyParser, (req, res, next) => {
-        // Only admins may delete hints
-        if (!req.user.admin) {
-            return res.status(401).json({
-                error: 'This account does not have admin privileges',
-            }); 
-        }
-        
+    .patch(requireAuth, verifyAdminPrivileges, jsonBodyParser, (req, res, next) => {
         const {
             hint_order_number,
             hint,
@@ -433,19 +372,132 @@ exercisesRouter
             .catch(next);
     });
 
-// Pick up here
 exercisesRouter
     .route('/:chapter_number/do-pages')
+    .all(checkChapterExists)
     .get((req, res, next) => {
-        ExercisesService.getExercisesDoById(
+        ExercisesService.getExercisesDoByChapter(
             req.app.get('db'),
             req.params.chapter_number
         )
             .then(pages => {
-                res.json(pages);
+                res.json(pages.map(ExercisesService.serializeDoPage));
+            })
+            .catch(next);
+    })
+    .post(requireAuth, verifyAdminPrivileges, jsonBodyParser, (req, res, next) => {
+        const {
+            page,
+            dialogue,
+            dialogue_look_back,
+            dialogue_to_look_for,
+            question_type,
+            question,
+            incorrect_response_option_1,
+            incorrect_response_option_2,
+            incorrect_response_option_3,
+            correct_response,
+            response_if_incorrect_1,
+            response_if_incorrect_2,
+            response_if_incorrect_3,
+            look_ahead,
+            look_back,
+            property_to_save,
+            property_to_look_for, 
+            image_url,
+            image_alt_text,
+            input_label,
+            background_image_url,
+            background_image_alt_text,
+        } = req.body;
+
+        const newDoPage = {
+            page,
+            question_type,
+            question,
+        };
+
+        for (const [key, value] of Object.entries(newDoPage)) {
+            if (value == null) {
+                res.status(400).json({
+                    error: `Missing '${key}' in request body`,
+                });
+            }
+        }
+
+        newDoPage.chapter_number = req.params.chapter_number;
+        newDoPage.dialogue = dialogue;
+        newDoPage.dialogue_look_back = dialogue_look_back;
+        newDoPage.dialogue_to_look_for = dialogue_to_look_for;
+        newDoPage.incorrect_response_option_1 = incorrect_response_option_1;
+        newDoPage.incorrect_response_option_2 = incorrect_response_option_2;
+        newDoPage.incorrect_response_option_3 = incorrect_response_option_3;
+        newDoPage.correct_response = correct_response;
+        newDoPage.response_if_incorrect_1 = response_if_incorrect_1;
+        newDoPage.response_if_incorrect_2 = response_if_incorrect_2;
+        newDoPage.response_if_incorrect_3 = response_if_incorrect_3;
+        newDoPage.look_ahead = look_ahead;
+        newDoPage.look_back = look_back;
+        newDoPage.property_to_save = property_to_save;
+        newDoPage.property_to_look_for = property_to_look_for;
+        newDoPage.image_url = image_url;
+        newDoPage.image_alt_text = image_alt_text;
+        newDoPage.input_label = input_label;
+        newDoPage.background_image_url = background_image_url;
+        newDoPage.background_image_alt_text = background_image_alt_text;
+
+        ExercisesService.insertExerciseDoPage(
+            req.app.get('db'),
+            newDoPage
+        )
+            .then(doPage => {
+                res
+                    .status(201)
+                    .location(path.posix.join(req.originalUrl, `/${doPage.id}`))
+                    .json(ExercisesService.serializeDoPage(doPage));
             })
             .catch(next);
     });
+
+exercisesRouter
+    .route('/:chapter_number/do-pages/:page_id')
+    .all(checkChapterExists)
+    .all(checkDoPageExists)
+    .get((req, res, next) => {
+        return res.json(ExercisesService.serializeDoPage(res.doPage));
+    })
+    .delete(requireAuth, verifyAdminPrivileges, (req, res, next) => {
+        ExercisesService.deleteExercise(
+            req.app.get('db'),
+            req.params.page_id
+        )
+            .then(() => {
+                res.status(204).end();
+            })
+            .catch(next);
+    });
+    // Add patch handling
+
+async function checkDoPageExists(req, res, next) {
+    try {
+        const doPage = await ExercisesService.getExercisesDoPageById(
+            req.app.get('db'),
+            req.params.chapter_number,
+            req.params.page_id
+        );
+
+        if (!doPage) {
+            return res.status(404).json({
+                error: `Exercise do page not found`,
+            });
+        }
+
+        res.doPage = doPage;
+        next();
+    } catch(error) {
+        next(error);
+    }
+}
 
 async function checkHintExists(req, res, next) {
     try {
