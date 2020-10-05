@@ -187,6 +187,252 @@ function seedDialogue(db, users, stories, dialogue) {
     });
 };
 
+function makeExercisesFixtures() {
+    const stories = makeStoriesArray();
+
+    const exercises = [1, 2, 3, 4].map(num => ({
+        id: num,
+        chapter_number: num,
+        exercise_title: `Test Exercise ${num}`,
+        exercise_translation: `Test Translation ${num}`,
+    }));
+
+    const learnPages = [1, 2, 3, 4].map(num => ({
+        id: num,
+        chapter_number: num,
+        page: 1,
+        text: `Test Text ${num}`,
+        image_url: 'http://placehold.it/500x500',
+        image_alt_text: `Test alt ${num}`,
+        background_image_url: 'http://placehold.it/500x500',
+        background_image_alt_text: `Test alt ${num}`,
+    }));
+
+    const learnHints = [1, 2, 3, 4].map(num => ({
+        id: num,
+        exercise_page_id: num,
+        hint_order_number: 1,
+        hint: `Hint Text ${num}`,
+    }));
+
+    const doPages = [
+        {
+            id: 1,
+            chapter_number: 1,
+            page: 1,
+            dialogue: `Test Dialogue 1`,
+            dialogue_look_back: false,
+            dialogue_to_look_for: '',
+            question_type: 'multiple-choice',
+            question: 'Test question 1',
+            incorrect_response_option_1: 'Incorrect test 1',
+            incorrect_response_option_2: 'Incorrect test 2',
+            incorrect_response_option_3: 'Incorrect test 3',
+            correct_response: 'Correct test',
+            response_if_incorrect_1: 'Incorrect 1',
+            response_if_incorrect_2: 'Incorrect 2',
+            response_if_incorrect_3: 'Incorrect 3',
+            look_ahead: false,
+            look_back: false,
+            property_to_save: '',
+            property_to_look_for: '', 
+            image_url: 'http://placehold.it/500x500',
+            image_alt_text: `Test alt 1`,
+            background_image_url: 'http://placehold.it/500x500',
+            background_image_alt_text: `Test alt 1`,
+            input_label: '',
+        },
+        {
+            id: 2,
+            chapter_number: 2,
+            page: 1,
+            dialogue: `Test Dialogue 2`,
+            dialogue_look_back: false,
+            dialogue_to_look_for: '',
+            question_type: 'input',
+            question: 'Test question 2',
+            incorrect_response_option_1: '',
+            incorrect_response_option_2: '',
+            incorrect_response_option_3: '',
+            correct_response: 'Correct 2',
+            response_if_incorrect_1: 'Incorrect 1',
+            response_if_incorrect_2: '',
+            response_if_incorrect_3: '',
+            look_ahead: false,
+            look_back: false,
+            property_to_save: '',
+            property_to_look_for: '', 
+            image_url: 'http://placehold.it/500x500',
+            image_alt_text: `Test alt 2`,
+            background_image_url: 'http://placehold.it/500x500',
+            background_image_alt_text: `Test alt 2`,
+            input_label: 'Test Input Label',
+        },
+        {
+            id: 3,
+            chapter_number: 3,
+            page: 1,
+            dialogue: `Test Dialogue 3`,
+            dialogue_look_back: false,
+            dialogue_to_look_for: '',
+            question_type: 'true/false',
+            question: 'True or False? (Vērum aut Falsum?)',
+            incorrect_response_option_1: 'False/Falsum',
+            incorrect_response_option_2: '',
+            incorrect_response_option_3: '',
+            correct_response: 'True/Vērum',
+            response_if_incorrect_1: 'Incorrect 1',
+            response_if_incorrect_2: '',
+            response_if_incorrect_3: '',
+            look_ahead: false,
+            look_back: false,
+            property_to_save: '',
+            property_to_look_for: '', 
+            image_url: 'http://placehold.it/500x500',
+            image_alt_text: `Test alt 3`,
+            background_image_url: 'http://placehold.it/500x500',
+            background_image_alt_text: `Test alt 3`,
+            input_label: '',
+        },
+    ];
+
+    return {
+        stories,
+        exercises,
+        learnPages,
+        learnHints,
+        doPages,
+    };
+}
+
+function makeMaliciousExerciseFixtures() {
+    const maliciousStory = makeMaliciousStory();
+    const maliciousExercise = {
+        id: 911,
+        chapter_number: 911,
+        exercise_title: 'Naughty naughty very naughty <script>alert("xss");</script>',
+        exercise_translation: 'Naughty naughty very naughty <script>alert("xss");</script>',
+    };
+    const maliciousLearnPage = {
+        id: 911,
+        chapter_number: 911,
+        page: 911,
+        text: 'Naughty naughty very naughty <script>alert("xss");</script>',
+        image_url: 'Naughty naughty very naughty <script>alert("xss");</script>',
+        image_alt_text: 'Naughty naughty very naughty <script>alert("xss");</script>',
+        background_image_url: 'Naughty naughty very naughty <script>alert("xss");</script>',
+        background_image_alt_text: 'Naughty naughty very naughty <script>alert("xss");</script>',
+    };
+    const maliciousHint = {
+        id: 911,
+        exercise_page_id: 911,
+        hint_order_number: 911,
+        hint: 'Naughty naughty very naughty <script>alert("xss");</script>',
+    };
+    const maliciousDoPage = {
+        id: 911,
+        chapter_number: 911,
+        page: 911,
+        dialogue: 'Naughty naughty very naughty <script>alert("xss");</script>',
+        dialogue_look_back: false,
+        dialogue_to_look_for: 'Naughty naughty very naughty <script>alert("xss");</script>',
+        question_type: 'true/false',
+        question: 'Naughty naughty very naughty <script>alert("xss");</script>',
+        incorrect_response_option_1: 'Naughty naughty very naughty <script>alert("xss");</script>',
+        incorrect_response_option_2: 'Naughty naughty very naughty <script>alert("xss");</script>',
+        incorrect_response_option_3: 'Naughty naughty very naughty <script>alert("xss");</script>',
+        correct_response: 'Naughty naughty very naughty <script>alert("xss");</script>',
+        response_if_incorrect_1: 'Naughty naughty very naughty <script>alert("xss");</script>',
+        response_if_incorrect_2: 'Naughty naughty very naughty <script>alert("xss");</script>',
+        response_if_incorrect_3: 'Naughty naughty very naughty <script>alert("xss");</script>',
+        look_ahead: false,
+        look_back: false,
+        property_to_save: 'Naughty naughty very naughty <script>alert("xss");</script>',
+        property_to_look_for: 'Naughty naughty very naughty <script>alert("xss");</script>',
+        image_url: 'Naughty naughty very naughty <script>alert("xss");</script>',
+        image_alt_text: 'Naughty naughty very naughty <script>alert("xss");</script>',
+        background_image_url: 'Naughty naughty very naughty <script>alert("xss");</script>',
+        background_image_alt_text: 'Naughty naughty very naughty <script>alert("xss");</script>',
+        input_label: 'Naughty naughty very naughty <script>alert("xss");</script>',
+    };
+
+    return {
+        maliciousStory,
+        maliciousExercise,
+        maliciousLearnPage,
+        maliciousHint,
+        maliciousDoPage,
+    };
+}
+
+function makeSanatizedExerciseFixtures() {
+    const sanatizedStory = makeSanatizedStory();
+    const sanatizedExercise = {
+        id: 911,
+        chapter_number: 911,
+        exercise_title: 'Naughty naughty very naughty &lt;script&gt;alert(\"xss\");&lt;/script&gt;',
+        exercise_translation: 'Naughty naughty very naughty &lt;script&gt;alert(\"xss\");&lt;/script&gt;',
+    };
+    const sanatizedLearnPage = {
+        id: 911,
+        chapter_number: 911,
+        page: 911,
+        text: 'Naughty naughty very naughty &lt;script&gt;alert(\"xss\");&lt;/script&gt;',
+        image_url: 'Naughty naughty very naughty &lt;script&gt;alert(\"xss\");&lt;/script&gt;',
+        image_alt_text: 'Naughty naughty very naughty &lt;script&gt;alert(\"xss\");&lt;/script&gt;',
+        background_image_url: 'Naughty naughty very naughty &lt;script&gt;alert(\"xss\");&lt;/script&gt;',
+        background_image_alt_text: 'Naughty naughty very naughty &lt;script&gt;alert(\"xss\");&lt;/script&gt;',
+    };
+    const sanatizedHint = {
+        id: 911,
+        exercise_page_id: 911,
+        hint_order_number: 911,
+        hint: 'Naughty naughty very naughty &lt;script&gt;alert(\"xss\");&lt;/script&gt;',
+    };
+    const sanatizedDoPage = {
+        id: 911,
+        chapter_number: 911,
+        page: 911,
+        dialogue: 'Naughty naughty very naughty &lt;script&gt;alert(\"xss\");&lt;/script&gt;',
+        dialogue_look_back: false,
+        dialogue_to_look_for: 'Naughty naughty very naughty &lt;script&gt;alert(\"xss\");&lt;/script&gt;',
+        question_type: 'true/false',
+        question: 'Naughty naughty very naughty &lt;script&gt;alert(\"xss\");&lt;/script&gt;',
+        incorrect_response_option_1: 'Naughty naughty very naughty &lt;script&gt;alert(\"xss\");&lt;/script&gt;',
+        incorrect_response_option_2: 'Naughty naughty very naughty &lt;script&gt;alert(\"xss\");&lt;/script&gt;',
+        incorrect_response_option_3: 'Naughty naughty very naughty &lt;script&gt;alert(\"xss\");&lt;/script&gt;',
+        correct_response: 'Naughty naughty very naughty &lt;script&gt;alert(\"xss\");&lt;/script&gt;',
+        response_if_incorrect_1: 'Naughty naughty very naughty &lt;script&gt;alert(\"xss\");&lt;/script&gt;',
+        response_if_incorrect_2: 'Naughty naughty very naughty &lt;script&gt;alert(\"xss\");&lt;/script&gt;',
+        response_if_incorrect_3: 'Naughty naughty very naughty &lt;script&gt;alert(\"xss\");&lt;/script&gt;',
+        look_ahead: false,
+        look_back: false,
+        property_to_save: 'Naughty naughty very naughty &lt;script&gt;alert(\"xss\");&lt;/script&gt;',
+        property_to_look_for: 'Naughty naughty very naughty &lt;script&gt;alert(\"xss\");&lt;/script&gt;',
+        image_url: 'Naughty naughty very naughty &lt;script&gt;alert(\"xss\");&lt;/script&gt;',
+        image_alt_text: 'Naughty naughty very naughty &lt;script&gt;alert(\"xss\");&lt;/script&gt;',
+        background_image_url: 'Naughty naughty very naughty &lt;script&gt;alert(\"xss\");&lt;/script&gt;',
+        background_image_alt_text: 'Naughty naughty very naughty &lt;script&gt;alert(\"xss\");&lt;/script&gt;',
+        input_label: 'Naughty naughty very naughty &lt;script&gt;alert(\"xss\");&lt;/script&gt;',
+    };
+
+    return {
+        sanatizedStory,
+        sanatizedExercise,
+        sanatizedLearnPage,
+        sanatizedHint,
+        sanatizedDoPage,
+    };
+}
+
+function seedExercises(db, users, stories, exercises) {
+    return db.transaction(async trx => {
+        await seedUsers(db, users);
+        await seedStories(db, stories);
+        await trx.into('legendum_exercises').insert(exercises);
+    });
+}
+
 function makeAuthHeader(user, secret = process.env.JWT_SECRET) {
     const token = jwt.sign(
         { user_id: user.id }, 
@@ -215,4 +461,8 @@ module.exports = {
     makeMaliciousDialogue,
     makeSanatizedDialogue,
     makeStoryDialogue,
+    makeExercisesFixtures,
+    seedExercises,
+    makeMaliciousExerciseFixtures,
+    makeSanatizedExerciseFixtures,
 };
