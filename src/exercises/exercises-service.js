@@ -152,6 +152,11 @@ const ExercisesService = {
             .where({ id })
             .delete();
     },
+    updateExercisesDoPage(db, id, fieldsToUpdate) {
+        return db('legendum_exercises_do')
+            .where({ id })
+            .update(fieldsToUpdate);
+    },
     serializeExercise(exercise) {
         return {
             id: exercise.id,

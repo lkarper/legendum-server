@@ -475,9 +475,76 @@ exercisesRouter
                 res.status(204).end();
             })
             .catch(next);
-    });
-    // Add patch handling
+    })
+    .patch(requireAuth, verifyAdminPrivileges, (req, res, next) => {
+        const {
+            page,
+            dialogue,
+            dialogue_look_back,
+            dialogue_to_look_for,
+            question_type,
+            question,
+            incorrect_response_option_1,
+            incorrect_response_option_2,
+            incorrect_response_option_3,
+            correct_response,
+            response_if_incorrect_1,
+            response_if_incorrect_2,
+            response_if_incorrect_3,
+            look_ahead,
+            look_back,
+            property_to_save,
+            property_to_look_for, 
+            image_url,
+            image_alt_text,
+            input_label,
+            background_image_url,
+            background_image_alt_text,
+        } = req.body;
 
+        const doPageFieldsToUpdate = {
+            page,
+            dialogue,
+            dialogue_look_back,
+            dialogue_to_look_for,
+            question_type,
+            question,
+            incorrect_response_option_1,
+            incorrect_response_option_2,
+            incorrect_response_option_3,
+            correct_response,
+            response_if_incorrect_1,
+            response_if_incorrect_2,
+            response_if_incorrect_3,
+            look_ahead,
+            look_back,
+            property_to_save,
+            property_to_look_for, 
+            image_url,
+            image_alt_text,
+            input_label,
+            background_image_url,
+            background_image_alt_text,
+        };
+
+        const numberOfValues = Object.values(doPageFieldsToUpdate).filter(Boolean).length;
+        if (numberOfValues.length === 0) {
+            return res.status(400).json({
+                error: `Request body must contain one of: 'page', 'dialogue', 'dialogue_look_back', 'dialogue_to_look_for', 'question_type', 'question', 'incorrect_response_option_1', 'incorrect_response_option_2', 'incorrect_response_option_3', 'correct_response', 'response_if_incorrect_1', 'response_if_incorrect_2', 'response_if_incorrect_3', 'look_ahead', 'look_back', 'property_to_save', 'property_to_look_for', 'image_url', 'image_alt_text', 'input_label', 'background_image_url', 'background_image_alt_text'.`,
+            });
+        }
+
+        ExercisesService.updateExercisesDoPage(
+            req.app.get('db'),
+            req.params.page_id,
+            doPageFieldsToUpdate
+        )
+            .then(numRowsAffected => {
+                res.status(204).end();
+            })
+            .catch(next);
+    });
+    
 async function checkDoPageExists(req, res, next) {
     try {
         const doPage = await ExercisesService.getExercisesDoPageById(
