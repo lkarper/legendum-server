@@ -220,7 +220,6 @@ exercisesRouter
                     .json(ExercisesService.serializeLearnPage(newPage));
             })
             .catch(next);
-
     });
 
 exercisesRouter

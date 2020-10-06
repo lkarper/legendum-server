@@ -433,6 +433,36 @@ function seedExercises(db, users, stories, exercises) {
     });
 }
 
+function seedLearnPages(db, users, stories, exercises, learnPages, hints) {
+    return db.transaction(async trx => {
+        await seedExercises(db, users, stories, exercises);
+        await trx.into('legendum_exercises_learn').insert(learnPages);
+        await trx.into('legendum_exercises_learn_hints').insert(hints);
+    });
+}
+
+function makeExpectedLearnPage(learnPage, exercise, hints) {
+    return {
+        id: learnPage.id,
+        chapter_number: learnPage.chapter_number,
+        page: learnPage.page,
+        text: learnPage.text,
+        image_url: learnPage.image_url,
+        image_alt_text: learnPage.image_alt_text,
+        background_image_url: learnPage.background_image_url,
+        background_image_alt_text: learnPage.background_image_alt_text,
+        exercise_title: exercise.exercise_title,
+        exercise_translation: exercise.exercise_translation,
+        hints: hints
+            .filter(h => h.exercise_page_id === learnPage.id)
+            .map(hint => ({
+                id: hint.id,
+                hint_order_number: hint.hint_order_number,
+                hint: hint.hint,
+            })),
+    };
+}
+
 function makeAuthHeader(user, secret = process.env.JWT_SECRET) {
     const token = jwt.sign(
         { user_id: user.id }, 
@@ -465,4 +495,6 @@ module.exports = {
     seedExercises,
     makeMaliciousExerciseFixtures,
     makeSanatizedExerciseFixtures,
+    makeExpectedLearnPage,
+    seedLearnPages,
 };

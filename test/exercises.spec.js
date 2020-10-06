@@ -361,4 +361,71 @@ describe.only('Exercises endpoints', () => {
             });
         });
     });
+
+    describe('GET /api/exercises/:chapter_number/learn-pages', () => {
+        context('Given that the chapter with chapter_number does not exist', () => {
+            it('responds with 404 and an error message', () => {
+                return supertest(app)
+                    .get('/api/exercises/1/learn-pages')
+                    .expect(404, {
+                        error: {
+                            message: `Chapter doesn't exist`,
+                        },
+                    });
+            });
+        });
+
+        context('Given that the chapter with chapter_number does exist', () => {
+            context('Given that there are no learn pages for the chapter', () => {
+                beforeEach('seed exercises', () => helpers.seedExercises(db, testUsers, stories, exercises));
+                it('responds with 200 and an empty array', () => {
+                    return supertest(app)
+                        .get('/api/exercises/1/learn-pages')
+                        .expect(200, []);
+                });
+            });
+            
+            context('Given that there are learn pages for the chapter', () => {
+                beforeEach('seed exercise fixtures', () => 
+                    helpers.seedLearnPages(db, testUsers, stories, exercises, learnPages, learnHints)
+                );
+
+                it('responds with 200 and learn pages for the chapter', () => {
+                    const exercise = exercises.find(exercise => exercise.chapter_number === 1);
+                    const expectedLearnPages = learnPages
+                        .filter(p => p.chapter_number === 1)
+                        .map(page => helpers.makeExpectedLearnPage(page, exercise, learnHints));
+
+                    return supertest(app)
+                        .get('/api/exercises/1/learn-pages')
+                        .expect(200, expectedLearnPages);
+                });
+            });
+        });
+
+        context('Given an XSS attack', () => {
+            const {
+                maliciousStory,
+                maliciousExercise,
+                maliciousLearnPage,
+                maliciousHint,
+            } = helpers.makeMaliciousExerciseFixtures();
+            const {
+                sanatizedExercise,
+                sanatizedLearnPage,
+                sanatizedHint,
+            } = helpers.makeSanatizedExerciseFixtures();
+
+            before('seed malicious content', () => 
+                helpers.seedLearnPages(db, testUsers, maliciousStory, maliciousExercise, maliciousLearnPage, maliciousHint)
+            );
+
+            it('returns 200 and sanatized content', () => {
+                const expectedResult = helpers.makeExpectedLearnPage(sanatizedLearnPage, sanatizedExercise, [sanatizedHint]);
+                return supertest(app)
+                    .get(`/api/exercises/${maliciousExercise.chapter_number}/learn-pages`)
+                    .expect(200, [expectedResult]);
+            });
+        });
+    });
 });
