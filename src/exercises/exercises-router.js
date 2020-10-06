@@ -178,7 +178,7 @@ exercisesRouter
             })
             .catch(next);
     })
-    .post(requireAuth, verifyAdminPrivileges, (req, res, next) => {
+    .post(requireAuth, verifyAdminPrivileges, jsonBodyParser, (req, res, next) => {
         const {
             page,
             text,
@@ -196,9 +196,7 @@ exercisesRouter
         for (const [key, value] of Object.entries(newPage)) {
             if (value == null) {
                 return res.status(400).json({
-                    error: {
-                        message: `Missing '${key}' in request body`,
-                    },
+                    error: `Missing '${key}' in request body`,
                 });
             }
         }
@@ -239,7 +237,7 @@ exercisesRouter
             })
             .catch(next);
     })
-    .patch(requireAuth, verifyAdminPrivileges, (req, res, next) => {
+    .patch(requireAuth, verifyAdminPrivileges, jsonBodyParser, (req, res, next) => {
         const {
             page,
             text,
@@ -475,7 +473,7 @@ exercisesRouter
             })
             .catch(next);
     })
-    .patch(requireAuth, verifyAdminPrivileges, (req, res, next) => {
+    .patch(requireAuth, verifyAdminPrivileges, jsonBodyParser, (req, res, next) => {
         const {
             page,
             dialogue,
