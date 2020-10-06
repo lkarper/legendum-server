@@ -428,4 +428,99 @@ describe.only('Exercises endpoints', () => {
             });
         });
     });
+
+    describe('POST /api/exercises/:chapter_number/learn-pages', () => {
+        const newLearnPage = learnPages[0];
+        context('Given that the chapter with chapter_number does not exist', () => {
+            it('responds with 404 and an error message', () => {
+                return supertest(app)
+                .post('/api/exercises/1/learn-pages')
+                .send(newLearnPage)
+                .expect(404, {
+                    error: {
+                        message: `Chapter doesn't exist`,
+                    },
+                });
+            });
+        });
+
+        context('Given that the chapter with chapter_number does exist', () => {
+            beforeEach('seed exercises', () => helpers.seedExercises(db, testUsers, stories, exercises));
+            context('Given that there is no auth header', () => {
+                it('responds with 401 and an error message', () => {
+                    return supertest(app)
+                        .post('/api/exercises/1/learn-pages')
+                        .send(newLearnPage)
+                        .expect(401, {
+                            error: `Missing bearer token`,
+                        });
+                });
+            });
+            
+            context('Given that there is an auth header', () => {
+                context('Given that the user does not have admin privileges', () => {
+                    it('responds 401 and an error message', () => {
+                        return supertest(app)
+                            .post('/api/exercises/1/learn-pages')
+                            .set('Authorization', helpers.makeAuthHeader(nonAdminUser))
+                            .send(newLearnPage)
+                            .expect(401, {
+                                error: 'This account does not have admin privileges',
+                            });
+                    });
+                });
+
+                context('Given that the user does have admin privileges', () => {
+                    const requiredFields = [
+                        'page',
+                        'text',
+                    ];
+                    
+                    requiredFields.forEach(field => {
+                        const postAttempt = { ...newLearnPage };
+                        delete postAttempt[field];
+                        it(`responds with 400 when '${field}' is missing`, () => {
+                            return supertest(app)
+                                .post('/api/exercises/1/learn-pages')
+                                .set('Authorization', helpers.makeAuthHeader(adminUser))
+                                .send(postAttempt)
+                                .expect(400, {
+                                    error: `Missing '${field}' in request body`,
+                                });
+                        });
+                    });
+                    
+                    context('Given that the request body is complete', () => {
+                        it('responds with 201 and creates a new learn page', () => {
+                            const exercise = exercises.find(e => e.chapter_number === 1);
+                            const expectedLearnPage = helpers.makeExpectedLearnPage(newLearnPage, exercise, []);
+                            return supertest(app)
+                                .post(`/api/exercises/${exercise.chapter_number}/learn-pages`)
+                                .set('Authorization', helpers.makeAuthHeader(adminUser))
+                                .send(newLearnPage)
+                                .expect(201)
+                                .expect(res => {
+                                    expect(res.body).to.have.property('id');
+                                    expect(res.headers.location).to.eql(`/api/exercises/${exercise.chapter_number}/learn-pages/${res.body.id}`);
+                                    expect(res.body.page).to.eql(expectedLearnPage.page);
+                                    expect(res.body.text).to.eql(expectedLearnPage.text);
+                                    expect(res.body.image_url).to.eql(expectedLearnPage.image_url);
+                                    expect(res.body.alt_text).to.eql(expectedLearnPage.alt_text);
+                                    expect(res.body.background_image_url).to.eql(expectedLearnPage.background_image_url);
+                                    expect(res.body.background_image_alt_text).to.eql(expectedLearnPage.background_image_alt_text);
+                                    expect(res.body.exercise_title).to.eql(expectedLearnPage.exercise_title);
+                                    expect(res.body.exercise_translation).to.eql(expectedLearnPage.exercise_translation);
+                                    expect(res.body.hints).to.eql([]);
+                                })
+                                .then(postRes => 
+                                    supertest(app)
+                                        .get(`/api/exercises/${exercise.chapter_number}/learn-pages/${postRes.body.id}`)
+                                        .expect(200, expectedLearnPage)
+                                );
+                        });
+                    });
+                });
+            });
+        });
+    });
 });
