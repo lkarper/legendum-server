@@ -560,4 +560,76 @@ describe.only('Exercises endpoints', () => {
             });
         });
     });
+
+    describe('DELETE /:chapter_number/learn-pages/:page_id', () => {
+        context('Given that the chapter does not exist', () => {
+            it('responds with 404 and an error message', () => {
+                return supertest(app)
+                    .delete('/api/exercises/1/learn-pages/1')
+                    .expect(404, {
+                        error: {
+                            message: `Chapter doesn't exist`,
+                        },
+                    });
+            });
+        });
+
+        context('Given that the chapter exists, but the Learn Page does not', () => {
+            beforeEach('seed exercises', () => helpers.seedExercises(db, testUsers, stories, exercises));
+            it('responds with 404 and an error message', () => {
+                return supertest(app)
+                    .delete('/api/exercises/1/learn-pages/1')
+                    .expect(404, {
+                        error: `Exercise learn page not found`,
+                    });
+            });
+        });
+
+        context('Given that the chapter and Learn Page both exist', () => {
+            beforeEach('seed learn pages', () => helpers.seedLearnPages(db, testUsers, stories, exercises, learnPages, learnHints));
+            context('Given that there is no auth header', () => {
+                context('Given that there is no auth header', () => {
+                    it('responds with 401 and an error message', () => {
+                        return supertest(app)
+                            .delete('/api/exercises/1/learn-pages/1')
+                            .expect(401, {
+                                error: `Missing bearer token`,
+                            });
+                    });
+                });
+
+                context('Given that there is an auth header', () => {
+                    context('Given that the user does not have admin privileges', () => {
+                        it('responds 401 and an error message', () => {
+                            return supertest(app)
+                                .delete('/api/exercises/1/learn-pages/1')
+                                .set('Authorization', helpers.makeAuthHeader(nonAdminUser))
+                                .expect(401, {
+                                    error: 'This account does not have admin privileges',
+                                });
+                        });
+                    });
+
+                    context('Given that the user does have admin privileges', () => {
+                        it('responds with 204 and deletes the Learn Page', () => {
+                            const learnPageToDelete = learnPages[0];
+                            const exercise = exercises.find(exercise => exercise.chapter_number === 1);
+                            const expectedLearnPages = learnPages
+                                .filter(p => p.chapter_number === 1 && p.id !== learnPageToDelete.id)
+                                .map(page => helpers.makeExpectedLearnPage(page, exercise, learnHints));
+                            return supertest(app)
+                                .delete(`/api/exercises/${learnPageToDelete.chapter_number}/learn-pages/${learnPageToDelete.id}`)
+                                .set('Authorization', helpers.makeAuthHeader(adminUser))
+                                .expect(204)
+                                .then(() =>
+                                    supertest(app)
+                                        .get(`/api/exercises/${learnPageToDelete.chapter_number}/learn-pages`)
+                                        .expect(200, expectedLearnPages)
+                                );
+                        });
+                    });
+                });
+            });
+        });
+    });
 });
