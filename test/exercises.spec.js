@@ -632,4 +632,170 @@ describe.only('Exercises endpoints', () => {
             });
         });
     });
+
+    describe('PATCH /api/exercises/:chapter_number/learn-pages/:page_id', () => {
+        context('Given that the chapter does not exist', () => {
+            it('responds with 404 and an error message', () => {
+                return supertest(app)
+                    .patch('/api/exercises/1/learn-pages/1')
+                    .send({ text: 'TEST' })
+                    .expect(404, {
+                        error: {
+                            message: `Chapter doesn't exist`,
+                        },
+                    });
+            });
+        });
+
+        context('Given that the chapter exists, but the Learn Page does not', () => {
+            beforeEach('seed exercises', () => helpers.seedExercises(db, testUsers, stories, exercises));
+            it('responds with 404 and an error message', () => {
+                return supertest(app)
+                    .patch('/api/exercises/1/learn-pages/1')
+                    .send({ text: 'TEST' })
+                    .expect(404, {
+                        error: `Exercise learn page not found`,
+                    });
+            });
+        });
+
+        context('Given that the chapter and the Learn Page exist', () => {
+            beforeEach('seed Learn Pages', () => helpers.seedLearnPages(db, testUsers, stories, exercises, learnPages, learnHints));
+            
+            context('Given that there is no auth header', () => {
+                it('responds with 401 and an error message', () => {
+                    return supertest(app)
+                        .patch('/api/exercises/1/learn-pages/1')
+                        .send({ text: 'TEST' })
+                        .expect(401, {
+                            error: `Missing bearer token`,
+                        });
+                });
+            });
+
+            context('Given that there is an auth header', () => {
+                context('Given that the user does not have admin privileges', () => {
+                    it('responds with 401 and an error message', () => {
+                        return supertest(app)
+                            .patch('/api/exercises/1/learn-pages/1')
+                            .set('Authorization', helpers.makeAuthHeader(nonAdminUser))
+                            .send({ text: 'TEST' })
+                            .expect(401, {
+                                error: 'This account does not have admin privileges',
+                            });
+                    });
+                });
+                
+                context('Given that the user has admin privileges', () => {
+                    context('Given that there are no fields in the request body', () => {
+                        it('responds with 400 and an error message', () => {
+                            return supertest(app)
+                                .patch('/api/exercises/1/learn-pages/1')
+                                .set('Authorization', helpers.makeAuthHeader(adminUser))
+                                .send({})
+                                .expect(400, {
+                                    error: `Request body must contain one of 'page', 'text', 'image_url', 'image_alt_text', 'background_image_url', 'background_image_alt_text'.`,
+                                });
+                        });
+                    }); 
+                    
+                    context('Given fields in the request body', () => {
+                        it('responds with 204 and updates the resource', () => {
+                            const updatedLearnPage = {
+                                page: 100,
+                                text: 'Updated',
+                                image_url: 'updated.image.com/',
+                                image_alt_text: 'updated alt text',
+                                background_image_url: 'updated.image.background.com/',
+                                background_image_alt_text: 'updated alt text'
+                            };
+                            const newLearnPage = { ...learnPages[0], ...updatedLearnPage };
+                            const exercise = exercises.find(exercise => exercise.chapter_number === 1);
+                            const expectedLearnPage = helpers.makeExpectedLearnPage(newLearnPage, exercise, learnHints);
+                            
+                            return supertest(app)
+                                .patch(`/api/exercises/1/learn-pages/${newLearnPage.id}`)
+                                .set('Authorization', helpers.makeAuthHeader(adminUser))
+                                .send(updatedLearnPage)
+                                .expect(204)
+                                .then(() =>
+                                    supertest(app)
+                                        .get(`/api/exercises/1/learn-pages/${newLearnPage.id}`)
+                                        .expect(200, expectedLearnPage) 
+                                );
+                        });
+                    });
+                });
+            });            
+        });
+    });
+
+    describe('GET /:chapter_number/learn-pages/:page_id/hints', () => {
+        context('Given that the chapter does not exist', () => {
+            it('responds with 404 and an error message', () => {
+                return supertest(app)
+                    .get('/api/exercises/1/learn-pages/1/hints')
+                    .expect(404, {
+                        error: {
+                            message: `Chapter doesn't exist`,
+                        },
+                    });
+            });
+        });
+
+        context('Given that the chapter exists, but the Learn Page does not', () => {
+            beforeEach('seed exercises', () => helpers.seedExercises(db, testUsers, stories, exercises));
+            it('responds with 404 and an error message', () => {
+                return supertest(app)
+                    .get('/api/exercises/1/learn-pages/1/hints')
+                    .expect(404, {
+                        error: `Exercise learn page not found`,
+                    });
+            });
+        });
+
+        context('Given that the chapter and the Learn Page exist', () => {
+            context('Given that there are no hints for a Learn Page', () => {
+                beforeEach('seed learn pages', () => helpers.seedLearnPages(db, testUsers, stories, exercises, learnPages, []));
+                it('responds with 200 and an empty array', () => {
+                    return supertest(app)
+                        .get('/api/exercises/1/learn-pages/1/hints')
+                        .expect(200, []);
+                });
+            });
+
+            context('Given that there are hints for a Learn Page', () => {
+                beforeEach('seed learn pages', () => helpers.seedLearnPages(db, testUsers, stories, exercises, learnPages, learnHints));
+                it('responds with 200 and the hints for the page', () => {
+                    const learnPage = learnPages[0];
+                    const expectedHints = learnHints.filter(h => h.exercise_page_id === learnPage.id);
+                    return supertest(app)
+                        .get('/api/exercises/1/learn-pages/1/hints')
+                        .expect(200, expectedHints);
+                });
+            });
+        });
+
+        context('Given an XSS attack', () => {
+            const {
+                maliciousStory,
+                maliciousExercise,
+                maliciousLearnPage,
+                maliciousHint,
+            } = helpers.makeMaliciousExerciseFixtures();
+            const {
+                sanatizedHint,
+            } = helpers.makeSanatizedExerciseFixtures();
+
+            before('seed malicious content', () => 
+                helpers.seedLearnPages(db, testUsers, maliciousStory, maliciousExercise, maliciousLearnPage, maliciousHint)
+            );
+
+            it('responds with 200 and sanatized hints', () => {
+                return supertest(app)
+                    .get(`/api/exercises/${maliciousExercise.chapter_number}/learn-pages/${maliciousLearnPage.id}/hints`)
+                    .expect(200, [sanatizedHint]); 
+            });
+        });
+    });
 });
