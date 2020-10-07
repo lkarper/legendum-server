@@ -523,4 +523,41 @@ describe.only('Exercises endpoints', () => {
             });
         });
     });
+
+    describe('GET /:chapter_number/learn-pages/:page_id', () => {
+        context('Given that the chapter does not exist', () => {
+            it('responds with 404 and an error message', () => {
+                return supertest(app)
+                    .get('/api/exercises/1/learn-pages/1')
+                    .expect(404, {
+                        error: {
+                            message: `Chapter doesn't exist`,
+                        },
+                    });
+            });
+        });
+
+        context('Given that the chapter exists, but the Learn Page does not', () => {
+            beforeEach('seed exercises', () => helpers.seedExercises(db, testUsers, stories, exercises));
+            it('responds with 404 and an error message', () => {
+                return supertest(app)
+                    .get('/api/exercises/1/learn-pages/1')
+                    .expect(404, {
+                        error: `Exercise learn page not found`,
+                    });
+            });
+        });
+
+        context('Given that the chapter and the Learn Page exist', () => {
+            beforeEach('seed learn pages', () => helpers.seedLearnPages(db, testUsers, stories, exercises, learnPages, learnHints));
+            it('responds with 200 and the Learn Page with id equal to page_id', () => {
+                const exercise = exercises.find(e => e.chapter_number === 1);
+                const page = learnPages[0];
+                const expectedPage = helpers.makeExpectedLearnPage(page, exercise, learnHints);
+                return supertest(app)
+                    .get(`/api/exercises/${exercise.chapter_number}/learn-pages/${page.id}`)
+                    .expect(200, expectedPage);
+            });
+        });
+    });
 });
