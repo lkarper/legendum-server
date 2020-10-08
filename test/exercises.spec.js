@@ -1,3 +1,4 @@
+const { expect } = require('chai');
 const knex = require('knex');
 const supertest = require('supertest');
 const app = require('../src/app');
@@ -1205,6 +1206,121 @@ describe.only('Exercises endpoints', () => {
                     return supertest(app)
                         .get(`/api/exercises/${maliciousExercise.chapter_number}/do-pages`)
                         .expect(200, [expectedResponse]);
+                });
+            });
+        });
+    });
+
+    describe('POST /api/exercises/:chapter_number/do-pages', () => {
+        const exercise = exercises[0];
+        const newDoPage = doPages[0];
+
+        context('Given that the chapter does not exist', () => {
+            it('responds with 404 and an error message', () => {
+                return supertest(app)
+                    .post(`/api/exercises/${exercise.chapter_number}/do-pages`)
+                    .set('Authorization', helpers.makeAuthHeader(adminUser))
+                    .send(newDoPage)
+                    .expect(404, {
+                        error: {
+                            message: `Chapter doesn't exist`,
+                        },
+                    });
+            });
+        });
+
+        context('Given that the chapter does exist', () => {
+            beforeEach('seed exercises', () => helpers.seedExercises(db, testUsers, stories, exercises));
+            context('Given that there is no auth header', () => {
+                it('responds with 401 and an error message', () => {
+                    return supertest(app)
+                        .post(`/api/exercises/${exercise.id}/do-pages`)
+                        .send(newDoPage)
+                        .expect(401, {
+                            error: 'Missing bearer token', 
+                        });
+                });
+            });
+
+            context('Given that there is an auth header', () => {
+                context('Given that the user does not have admin privileges', () => {
+                    it('responds with 401 and an error message', () => {
+                        return supertest(app)
+                            .post(`/api/exercises/${exercise.id}/do-pages`)
+                            .set('Authorization', helpers.makeAuthHeader(nonAdminUser))
+                            .send(newDoPage)
+                            .expect(401, {
+                                error: 'This account does not have admin privileges', 
+                            });
+                    });
+                });
+
+                context('Given that the user does have admin privileges', () => {
+                    const requiredFields = [
+                        'page',
+                        'question_type',
+                        'question',
+                    ];
+
+                    requiredFields.forEach(field => {
+                        const postAttempt = { ...newDoPage };
+                        delete postAttempt[field];
+
+                        it(`responds with 400 and an error message when '${field}' is missing from the request body`, () => {
+                            return supertest(app)
+                                .post(`/api/exercises/${exercise.chapter_number}/do-pages`)
+                                .set('Authorization', helpers.makeAuthHeader(adminUser))
+                                .send(postAttempt)
+                                .expect(400, {
+                                    error: `Missing '${field}' in request body`,
+                                });
+                        });
+                    });
+                });
+
+                context('Given that the user does have admin privileges', () => {
+                    it('responds with 201 and creates a new Do Page', () => {
+                        const expectedResponse = helpers.makeExpectedDoPage(newDoPage, exercise);
+                        return supertest(app)
+                            .post(`/api/exercises/${exercise.chapter_number}/do-pages`)
+                            .set('Authorization', helpers.makeAuthHeader(adminUser))
+                            .send(newDoPage)
+                            .expect(201)
+                            .expect(res => {
+                                expect(res.body).to.have.property('id');
+                                expect(res.headers.location).to.eql(`/api/exercises/${exercise.chapter_number}/do-pages/${res.body.id}`);
+                                expect(res.body.chapter_number).to.eql(expectedResponse.chapter_number);
+                                expect(res.body.page).to.eql(expectedResponse.page);
+                                expect(res.body.dialogue).to.eql(expectedResponse.dialogue);
+                                expect(res.body.dialogue_look_back).to.eql(expectedResponse.dialogue_look_back);
+                                expect(res.body.dialogue_to_look_for).to.eql(expectedResponse.dialogue_to_look_for);
+                                expect(res.body.question_type).to.eql(expectedResponse.question_type);
+                                expect(res.body.question).to.eql(expectedResponse.question);
+                                expect(res.body.incorrect_response_option_1).to.eql(expectedResponse.incorrect_response_option_1);
+                                expect(res.body.incorrect_response_option_2).to.eql(expectedResponse.incorrect_response_option_2);
+                                expect(res.body.incorrect_response_option_3).to.eql(expectedResponse.incorrect_response_option_3);
+                                expect(res.body.correct_response).to.eql(expectedResponse.correct_response);
+                                expect(res.body.response_if_incorrect_1).to.eql(expectedResponse.response_if_incorrect_1);                                
+                                expect(res.body.response_if_incorrect_2).to.eql(expectedResponse.response_if_incorrect_2);                                
+                                expect(res.body.response_if_incorrect_3).to.eql(expectedResponse.response_if_incorrect_3);
+                                expect(res.body.look_ahead).to.eql(expectedResponse.look_ahead);
+                                expect(res.body.look_back).to.eql(expectedResponse.look_back);
+                                expect(res.body.property_to_save).to.eql(expectedResponse.property_to_save);
+                                expect(res.body.property_to_look_for).to.eql(expectedResponse.property_to_look_for);
+                                expect(res.body.image_url).to.eql(expectedResponse.image_url);
+                                expect(res.body.image_alt_text).to.eql(expectedResponse.image_alt_text);
+                                expect(res.body.background_image_url).to.eql(expectedResponse.background_image_url);
+                                expect(res.body.background_image_alt_text).to.eql(expectedResponse.background_image_alt_text);
+                                expect(res.body.input_label).to.eql(expectedResponse.input_label);
+                                expect(res.body.exercise_title).to.eql(expectedResponse.exercise_title);
+                                expect(res.body.exercise_translation).to.eql(expectedResponse.exercise_translation);                           
+                            })
+                            .then(postRes =>
+                                supertest(app)
+                                    .get(`/api/exercises/${postRes.body.chapter_number}/do-pages/${postRes.body.id}`)
+                                    .expect(200, expectedResponse)
+                            );
+                    });
                 });
             });
         });
