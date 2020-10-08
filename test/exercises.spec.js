@@ -1038,4 +1038,115 @@ describe.only('Exercises endpoints', () => {
             });
         });
     });
+
+    describe('PATCH /:chapter_number/learn-pages/:page_id/hints/:hint_id', () => {
+        context('Given that the chapter does not exist', () => {
+            it('responds with 404 and an error message', () => {
+                return supertest(app)
+                    .patch('/api/exercises/1/learn-pages/1/hints/1')
+                    .set('Authorization', helpers.makeAuthHeader(adminUser))
+                    .send({ hint: 'TEST' })
+                    .expect(404, {
+                        error: {
+                            message: `Chapter doesn't exist`,
+                        },
+                    });
+            });
+        });
+
+        context('Given that the chapter exists, but the Learn Page does not', () => {
+            beforeEach('seed exercises', () => helpers.seedExercises(db, testUsers, stories, exercises));
+            it('responds with 404 and an error message', () => {
+                return supertest(app)
+                    .patch('/api/exercises/1/learn-pages/1/hints/1')
+                    .set('Authorization', helpers.makeAuthHeader(adminUser))
+                    .send({ hint: 'TEST' })
+                    .expect(404, {
+                        error: `Exercise learn page not found`,
+                    });
+            });
+        });
+
+        context('Given that the chapter and the Learn Page exist', () => {
+            context('Given that the hint does not exist', () => {
+                beforeEach('seed Learn pages', () => helpers.seedLearnPages(db, testUsers, stories, exercises, learnPages, []));
+                it('responds with 404 and an error message', () => {
+                    return supertest(app)
+                        .patch('/api/exercises/1/learn-pages/1/hints/1')
+                        .set('Authorization', helpers.makeAuthHeader(adminUser))
+                        .send({ hint: 'TEST' })
+                        .expect(404, {
+                            error: 'Hint not found',
+                        });
+                });
+            });
+
+            context('Given that the hint does exist', () => {
+                beforeEach('seed Learn Pages and hints', () => helpers.seedLearnPages(db, testUsers, stories, exercises, learnPages, learnHints));
+                
+                context('Given that there is no auth header', () => {
+                    it('responds with 401 and an error message', () => {
+                        return supertest(app)
+                            .patch('/api/exercises/1/learn-pages/1/hints/1')
+                            .send({ hint: 'TEST' })
+                            .expect(401, {
+                                error: 'Missing bearer token', 
+                            });
+                    });
+                });
+
+                context('Given that there is an auth header', () => {
+                    context('Given that the user does not have admin privileges', () => {
+                        it('responds with 401 and an error message', () => {
+                            return supertest(app)
+                                .patch('/api/exercises/1/learn-pages/1/hints/1')
+                                .set('Authorization', helpers.makeAuthHeader(nonAdminUser))
+                                .send({ hint: 'TEST' })
+                                .expect(401, {
+                                    error: 'This account does not have admin privileges', 
+                                });
+                        });
+                    });
+
+                    context('Given that the user does have admin privileges', () => {
+                        context('Given that the request body is empty', () => {
+                            it('responds with 400 and an error message', () => {
+                                return supertest(app)
+                                    .patch('/api/exercises/1/learn-pages/1/hints/1')
+                                    .set('Authorization', helpers.makeAuthHeader(adminUser))
+                                    .send({})
+                                    .expect(400, {
+                                        error: `Request body must contain one of 'hint_order_number' or 'hint'.`,
+                                    });
+                            });
+                        });
+
+                        context('Given that the request body is properly formatted', () => {
+                            it('responds with 204 and updates the hint', () => {
+                                const hintToUpdate = learnHints[0];
+                                const hintUpdates = {
+                                    hint_order_number: 2,
+                                    hint: 'Updated', 
+                                };
+                                const expectedHint = { 
+                                    ...hintToUpdate, 
+                                    ...hintUpdates 
+                                };
+                                return supertest(app)
+                                    .patch(`/api/exercises/1/learn-pages/1/hints/${hintToUpdate.id}`)
+                                    .set('Authorization', helpers.makeAuthHeader(adminUser))
+                                    .send(hintUpdates)
+                                    .expect(204)
+                                    .then(() =>
+                                        supertest(app)
+                                            .get(`/api/exercises/1/learn-pages/1/hints/${hintToUpdate.id}`)
+                                            .expect(200, expectedHint)
+                                    );
+                            });
+                        });
+                    });
+                });
+            });
+        });
+    });
 });
