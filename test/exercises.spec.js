@@ -798,4 +798,115 @@ describe.only('Exercises endpoints', () => {
             });
         });
     });
+    
+    describe('POST /:chapter_number/learn-pages/:page_id/hints', () => {
+        const newHint = {
+            id: 1,
+            exercise_page_id: 1,
+            hint_order_number: 1,
+            hint: 'Test Hint',
+        };
+
+        context('Given that the chapter does not exist', () => {
+            it('responds with 404 and an error message', () => {
+                return supertest(app)
+                    .post('/api/exercises/1/learn-pages/1/hints')
+                    .set('Authorization', helpers.makeAuthHeader(adminUser))
+                    .send(newHint)
+                    .expect(404, {
+                        error: {
+                            message: `Chapter doesn't exist`,
+                        },
+                    });
+            });
+        });
+
+        context('Given that the chapter exists, but the Learn Page does not', () => {
+            beforeEach('seed exercises', () => helpers.seedExercises(db, testUsers, stories, exercises));
+            it('responds with 404 and an error message', () => {
+                return supertest(app)
+                    .post('/api/exercises/1/learn-pages/1/hints')
+                    .set('Authorization', helpers.makeAuthHeader(adminUser))
+                    .send(newHint)
+                    .expect(404, {
+                        error: `Exercise learn page not found`,
+                    });
+            });
+        });
+
+        context('Given that the chapter and Learn Page exist', () => {
+            beforeEach('seed Learn Pages', () => helpers.seedLearnPages(db, testUsers, stories, exercises, learnPages, []));
+            context('Given that there is no auth header', () => {
+                it('returns 401 and an error message', () => {
+                    return supertest(app)
+                        .post('/api/exercises/1/learn-pages/1/hints')
+                        .send(newHint)
+                        .expect(401, {
+                            error: `Missing bearer token`,
+                        });
+                });              
+            });
+
+            context('Given that there is an auth header', () => {
+                context('Given that the user does not have admin privileges', () => {
+                    it('responds with 401 and an error message', () => {
+                        return supertest(app)
+                            .post('/api/exercises/1/learn-pages/1/hints')
+                            .set('Authorization', helpers.makeAuthHeader(nonAdminUser))
+                            .send(newHint)
+                            .expect(401, {
+                                error: 'This account does not have admin privileges',
+                            });
+                    });
+                });
+
+                context('Given that the user does have admin privileges', () => {
+                    const requiredFields = [
+                        'hint_order_number',
+                        'hint',
+                    ];
+
+                    requiredFields.forEach(field => {
+                        const postAttempt = { ...newHint };
+                        delete postAttempt[field];
+
+                        it(`responds with 400 when '${field}' is missing`, () => {
+                            return supertest(app)
+                                .post(`/api/exercises/1/learn-pages/1/hints`)
+                                .set('Authorization', helpers.makeAuthHeader(adminUser))
+                                .send(postAttempt)
+                                .expect(400, {
+                                    error: `Missing '${field}' in request body`,
+                                });
+                        });
+                    });
+
+                    context('Given that the request body is complete', () => {
+                        it('responds with 201 and creates a hint', () => {
+                            return supertest(app)
+                                .post(`/api/exercises/1/learn-pages/1/hints`)
+                                .set('Authorization', helpers.makeAuthHeader(adminUser))
+                                .send(newHint)
+                                .expect(201)
+                                .expect(res => {
+                                    expect(res.body).to.have.property('id');
+                                    expect(res.header.location).to.eql(`/api/exercises/1/learn-pages/1/hints/${res.body.id}`);
+                                    expect(res.body.exercise_page_id).to.eql(1);
+                                    expect(res.body.hint_order_number).to.eql(newHint.hint_order_number);
+                                    expect(res.body.hint).to.eql(newHint.hint);
+                                })
+                                .then(postRes =>
+                                    supertest(app)
+                                        .get(`/api/exercises/1/learn-pages/1/hints/${postRes.body.id}`)
+                                        .expect(200, {
+                                            ...newHint,
+                                            exercise_page_id: 1
+                                        })
+                                );
+                        });
+                    });
+                });
+            });
+        });
+    });
 });
