@@ -909,4 +909,51 @@ describe.only('Exercises endpoints', () => {
             });
         });
     });
+
+    describe.only('GET /:chapter_number/learn-pages/:page_id/hints/:hint_id', () => {
+        context('Given that the chapter does not exist', () => {
+            it('responds with 404 and an error message', () => {
+                return supertest(app)
+                    .get('/api/exercises/1/learn-pages/1/hints/1')
+                    .expect(404, {
+                        error: {
+                            message: `Chapter doesn't exist`,
+                        },
+                    });
+            });
+        });
+
+        context('Given that the chapter exists, but the Learn Page does not', () => {
+            beforeEach('seed exercises', () => helpers.seedExercises(db, testUsers, stories, exercises));
+            it('responds with 404 and an error message', () => {
+                return supertest(app)
+                    .get('/api/exercises/1/learn-pages/1/hints/1')
+                    .expect(404, {
+                        error: `Exercise learn page not found`,
+                    });
+            });
+        });
+
+        context('Given that the chapter and Learn Page exist', () => {
+            beforeEach('seed Learn Pages', () => helpers.seedLearnPages(db, testUsers, stories, exercises, learnPages, learnHints));
+            context('Given that the hint does not exist', () => {
+                it('responds with 404 and an error message', () => {
+                    return supertest(app)
+                        .get('/api/exercises/1/learn-pages/1/hints/1000')
+                        .expect(404, {
+                            error: 'Hint not found',
+                        });
+                });
+            });
+
+            context('Given that the hint exists', () => {
+                it('responds with 200 and the hint with id equal to hint_id', () => {
+                    const hint = learnHints[0];
+                    return supertest(app)
+                        .get(`/api/exercises/1/learn-pages/1/hints/${hint.id}`)
+                        .expect(200, hint);
+                });
+            });
+        });
+    });
 });
