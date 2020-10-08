@@ -1325,4 +1325,43 @@ describe.only('Exercises endpoints', () => {
             });
         });
     });
+
+    describe('GET /api/exercises/:chapter_number/do-pages/:page_id', () => {
+        context('Given that the chapter with chapter_number does not exist', () => {
+            it('responds with 404 and an error message', () => {
+                return supertest(app)
+                    .get('/api/exercises/1/do-pages/1')
+                    .expect(404, {
+                        error: {
+                            message: `Chapter doesn't exist`,
+                        },
+                    });
+            });
+        });
+
+        context('Given that the chapter with chapter_number does exist', () => {
+            context('Given that the Do Page does not exist', () => {
+                beforeEach('seed exercises', () => helpers.seedExercises(db, testUsers, stories, exercises));
+                it('responds with 404 and an error message', () => {
+                    return supertest(app)
+                        .get('/api/exercises/1/do-pages/1')
+                        .expect(404, {
+                            error: `Exercise do page not found`,
+                        });
+                });
+            });
+
+            context('Given that the Do Page with id equal to page_id does exist', () => {
+                beforeEach('seed Do pages', () => helpers.seedDoPages(db, testUsers, stories, exercises, doPages));
+                it('responds with 200 and the Do Page with id equal to page_id', () => {
+                    const exercise = exercises[0];
+                    const doPage = doPages[0];
+                    const expectedResponse = helpers.makeExpectedDoPage(doPage, exercise);
+                    return supertest(app)
+                        .get(`/api/exercises/${exercise.chapter_number}/do-pages/${doPage.id}`)
+                        .expect(200, expectedResponse);
+                });
+            });
+        });
+    });
 });
