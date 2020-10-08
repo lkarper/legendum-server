@@ -1440,4 +1440,106 @@ describe.only('Exercises endpoints', () => {
             });
         });
     });
+
+    describe('PATCH /api/exercises/:chapter_number/do-pages/:page_id', () =>{
+        context('Given that the chapter does not exist', () => {
+            it('responds with 404 and an error message', () => {
+                return supertest(app)
+                    .patch('/api/exercises/1/do-pages/1')
+                    .set('Authorization', helpers.makeAuthHeader(adminUser))
+                    .send({ dialogue: 'Updated' })
+                    .expect(404, {
+                        error: {
+                            message: `Chapter doesn't exist`,
+                        },
+                    });
+            });
+        });
+
+        context('Given that the chapter does exist', () => {
+            beforeEach('seed Do Pages', () => helpers.seedDoPages(db, testUsers, stories, exercises, doPages));
+            
+            context('Given that the Do Page with page_id does not exist', () => {
+                it('responds with 404 and an error message', () => {
+                    return supertest(app)
+                        .patch('/api/exercises/1/do-pages/100')
+                        .set('Authorization', helpers.makeAuthHeader(adminUser))
+                        .send({ dialogue: 'Updated' })
+                        .expect(404, {
+                            error: `Exercise do page not found`,
+                        });
+                });
+            });
+
+            context('Given that the Do Page with page_id does exist', () => {
+                context('Given that there is no auth header', () => {
+                    it('responds with 401 and an error message', () => {
+                        return supertest(app)
+                            .patch('/api/exercises/1/do-pages/1')
+                            .send({ dialogue: 'Updated' })
+                            .expect(401, {
+                                error: 'Missing bearer token', 
+                            });
+                    });
+                });
+
+                context('Given that there is an auth header', () => {
+                    context('Given that the user does not have admin privileges', () => {
+                        it('responds with 401 and an error message', () => {
+                            return supertest(app)
+                                .patch('/api/exercises/1/do-pages/1')
+                                .set('Authorization', helpers.makeAuthHeader(nonAdminUser))
+                                .send({ dialogue: 'Updated' })
+                                .expect(401, {
+                                    error: 'This account does not have admin privileges',
+                                });
+                        });
+                    });
+
+                    context('Given that the user does have admin privileges', () => {
+                        it('responds with 204 and updates the Do Page', () => {
+                            const exercise = exercises[0];
+                            const doPageToUpdate = doPages[0];
+                            const doPageUpdates = {
+                                page: 2,
+                                dialogue: `Updated Dialogue 1`,
+                                dialogue_look_back: true,
+                                dialogue_to_look_for: 'Updated',
+                                question_type: 'multiple-choice',
+                                question: 'Updated question 1',
+                                incorrect_response_option_1: 'Incorrect updated 1',
+                                incorrect_response_option_2: 'Incorrect updated 2',
+                                incorrect_response_option_3: 'Incorrect updated 3',
+                                correct_response: 'Correct updated',
+                                response_if_incorrect_1: 'Incorrect up 1',
+                                response_if_incorrect_2: 'Incorrect up 2',
+                                response_if_incorrect_3: 'Incorrect up 3',
+                                look_ahead: true,
+                                look_back: true,
+                                property_to_save: 'update',
+                                property_to_look_for: 'update', 
+                                image_url: 'http://placehold.it/500x500/update',
+                                image_alt_text: `Test alt 1`,
+                                background_image_url: 'http://placehold.it/500x500/update',
+                                background_image_alt_text: `Test alt updated 1`,
+                                input_label: '',
+                            };
+                            const expectedPage = helpers.makeExpectedDoPage({ ...doPageToUpdate, ...doPageUpdates }, exercise);
+
+                            return supertest(app)
+                                .patch(`/api/exercises/${exercise.chapter_number}/do-pages/${doPageToUpdate.id}`)
+                                .set('Authorization', helpers.makeAuthHeader(adminUser))
+                                .send(doPageUpdates)
+                                .expect(204)
+                                .then(() =>
+                                    supertest(app)
+                                        .get(`/api/exercises/${exercise.chapter_number}/do-pages/${doPageToUpdate.id}`)
+                                        .expect(200, expectedPage)
+                                );
+                        });
+                    });
+                });
+            });
+        });
+    });
 });
