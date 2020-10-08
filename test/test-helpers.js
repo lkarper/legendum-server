@@ -425,6 +425,14 @@ function makeSanatizedExerciseFixtures() {
     };
 }
 
+function makeExpectedDoPage(doPage, exercise) {
+    return {
+        ...doPage,
+        exercise_title: exercise.exercise_title,
+        exercise_translation: exercise.exercise_translation,
+    };
+}
+
 function seedExercises(db, users, stories, exercises) {
     return db.transaction(async trx => {
         await seedUsers(db, users);
@@ -438,6 +446,13 @@ function seedLearnPages(db, users, stories, exercises, learnPages, hints) {
         await seedExercises(db, users, stories, exercises);
         await trx.into('legendum_exercises_learn').insert(learnPages);
         await trx.into('legendum_exercises_learn_hints').insert(hints);
+    });
+}
+
+function seedDoPages(db, users, stories, exercises, doPages) {
+    return db.transaction(async trx => {
+        await seedExercises(db, users, stories, exercises);
+        await trx.into('legendum_exercises_do').insert(doPages);
     });
 }
 
@@ -497,4 +512,6 @@ module.exports = {
     makeSanatizedExerciseFixtures,
     makeExpectedLearnPage,
     seedLearnPages,
+    seedDoPages,
+    makeExpectedDoPage,
 };

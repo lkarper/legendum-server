@@ -1149,4 +1149,64 @@ describe.only('Exercises endpoints', () => {
             });
         });
     });
+
+    describe('GET /api/exercises/:chapter_number/do-pages', () => {
+        context('Given that the chapter with chapter_number does not exist', () => {
+            it('responds with 404 and an error message', () => {
+                return supertest(app)
+                    .get('/api/exercises/1/do-pages')
+                    .expect(404, {
+                        error: {
+                            message: `Chapter doesn't exist`,
+                        },
+                    });
+            });
+        });
+
+        context('Given that the chapter with chapter_number does exist', () => {
+            context('Given that there are no Do Pages for a chapter', () => {
+                beforeEach('seed exercises', () => helpers.seedExercises(db, testUsers, stories, exercises));
+                it('responds with 200 and an empty array', () => {
+                    return supertest(app)
+                        .get('/api/exercises/1/do-pages')
+                        .expect(200, []);
+                });
+            });
+
+            context('Given that there are Do Pages for a chapter', () => {
+                beforeEach('seed Do Pages', () => helpers.seedDoPages(db, testUsers, stories, exercises, doPages));
+                it('responds with 200 and the Do Pages for a chapter', () => {
+                    const chapterNumber = 1;
+                    const exercise = exercises.find(e => e.chapter_number === chapterNumber);
+                    const pages = doPages.filter(p => p.chapter_number === chapterNumber);
+                    const expectedResponse = pages.map(p => helpers.makeExpectedDoPage(p, exercise));
+                    return supertest(app)
+                        .get(`/api/exercises/${chapterNumber}/do-pages`)
+                        .expect(200, expectedResponse);
+                });
+            });
+
+            context('Given an XSS attack', () => {
+                const {
+                    maliciousStory,
+                    maliciousExercise,
+                    maliciousDoPage,
+                } = helpers.makeMaliciousExerciseFixtures();
+
+                beforeEach('seed malicious Do Pages', () => 
+                    helpers.seedDoPages(db, testUsers, maliciousStory, maliciousExercise, maliciousDoPage)
+                );
+                it('responds with 200 and sanatized content', () => {
+                    const {
+                        sanatizedExercise,
+                        sanatizedDoPage,
+                    } = helpers.makeSanatizedExerciseFixtures();
+                    const expectedResponse = helpers.makeExpectedDoPage(sanatizedDoPage, sanatizedExercise);
+                    return supertest(app)
+                        .get(`/api/exercises/${maliciousExercise.chapter_number}/do-pages`)
+                        .expect(200, [expectedResponse]);
+                });
+            });
+        });
+    });
 });
