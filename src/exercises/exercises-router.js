@@ -416,7 +416,7 @@ exercisesRouter
 
         for (const [key, value] of Object.entries(newDoPage)) {
             if (value == null) {
-                res.status(400).json({
+                return res.status(400).json({
                     error: `Missing '${key}' in request body`,
                 });
             }
