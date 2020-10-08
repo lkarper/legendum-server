@@ -1364,4 +1364,80 @@ describe.only('Exercises endpoints', () => {
             });
         });
     });
+
+    describe('DELETE /api/exercises/:chapter_number/do-pages/:page_id', () => {
+        context('Given that the chapter with chapter_number does not exist', () => {
+            it('responds with 404 and an error message', () => {
+                return supertest(app)
+                    .delete('/api/exercises/1/do-pages/1')
+                    .set('Authorization', helpers.makeAuthHeader(adminUser))
+                    .expect(404, {
+                        error: {
+                            message: `Chapter doesn't exist`,
+                        },
+                    });
+            });
+        });
+
+        context('Given that the chapter with chapter_number does exist', () => {
+            context('Given that the Do Page with page_id does not exist', () => {
+                beforeEach('seed exercises', () => helpers.seedExercises(db, testUsers, stories, exercises));
+                it('responds with 404 and an error message', () => {
+                    return supertest(app)
+                        .delete(`/api/exercises/1/do-pages/1`)
+                        .set('Authorization', helpers.makeAuthHeader(adminUser))
+                        .expect(404, {
+                            error: 'Exercise do page not found', 
+                        });
+                });
+            });
+
+            context('Given that the do page with page_id does exist', () => {
+                beforeEach('seed Do pages', () => helpers.seedDoPages(db, testUsers, stories, exercises, doPages));
+                const exercise = exercises[0];
+                const doPageToDelete = doPages[0];
+
+                context('Given that there is no auth header', () => {
+                    it('responds with 401 and an error message', () => {
+                        return supertest(app)
+                            .delete(`/api/exercises/${exercise.chapter_number}/do-pages/${doPageToDelete.id}`)
+                            .expect(401, {
+                                error: 'Missing bearer token', 
+                            });
+                    });
+                });
+
+                context('Given that there is an auth header', () => {
+                    context('Given that the user does not have admin privileges', () => {
+                        it('responds with 401 and an error message', () => {
+                            return supertest(app)
+                            .delete(`/api/exercises/${exercise.chapter_number}/do-pages/${doPageToDelete.id}`)
+                            .set('Authorization', helpers.makeAuthHeader(nonAdminUser))
+                            .expect(401, {
+                                error: 'This account does not have admin privileges', 
+                            });
+                        });
+                    });
+
+                    context('Given that the user does have admin privileges', () => {
+                        it('responds with 204 and removes the Do Page', () => {
+                            const expectedResults = doPages
+                                .filter(p => p.id !== doPageToDelete.id && p.chapter_number === exercise.chapter_number)
+                                .map(p => helpers.makeExpectedDoPage(p, exercise));
+
+                            return supertest(app)
+                                .delete(`/api/exercises/${exercise.chapter_number}/do-pages/${doPageToDelete.id}`)
+                                .set('Authorization', helpers.makeAuthHeader(adminUser))
+                                .expect(204)
+                                .then(() =>
+                                    supertest(app)
+                                        .get(`/api/exercises/${exercise.chapter_number}/do-pages`)
+                                        .expect(200, expectedResults)
+                                );
+                        });
+                    });
+                });
+            });
+        });
+    });
 });
