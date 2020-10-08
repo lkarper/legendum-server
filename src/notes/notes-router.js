@@ -19,7 +19,7 @@ notesRouter
     })
     .post(requireAuth, jsonBodyParser, (req, res, next) => {
         const { hint_id, custom_note } = req.body;
-        const newNote = { hint_id, custom_note };
+        const newNote = { hint_id };
 
         for (const [key, value] of Object.entries(newNote)) {
             if (value == null) {
@@ -29,6 +29,7 @@ notesRouter
             }
         }
 
+        newNote.custom_note = custom_note;
         newNote.user_id = req.user.id;
 
         NotesService.insertNote(
