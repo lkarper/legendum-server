@@ -910,7 +910,7 @@ describe.only('Exercises endpoints', () => {
         });
     });
 
-    describe.only('GET /:chapter_number/learn-pages/:page_id/hints/:hint_id', () => {
+    describe('GET /:chapter_number/learn-pages/:page_id/hints/:hint_id', () => {
         context('Given that the chapter does not exist', () => {
             it('responds with 404 and an error message', () => {
                 return supertest(app)
@@ -952,6 +952,88 @@ describe.only('Exercises endpoints', () => {
                     return supertest(app)
                         .get(`/api/exercises/1/learn-pages/1/hints/${hint.id}`)
                         .expect(200, hint);
+                });
+            });
+        });
+    });
+
+    describe('DELETE /:chapter_number/learn-pages/:page_id/hints/:hint_id', () => {
+        context('Given that the chapter does not exist', () => {
+            it('responds with 404 and an error message', () => {
+                return supertest(app)
+                    .delete('/api/exercises/1/learn-pages/1/hints/1')
+                    .set('Authorization', helpers.makeAuthHeader(adminUser))
+                    .expect(404, {
+                        error: {
+                            message: `Chapter doesn't exist`,
+                        },
+                    });
+            });
+        });
+
+        context('Given that the chapter exists, but the Learn Page does not', () => {
+            beforeEach('seed exercises', () => helpers.seedExercises(db, testUsers, stories, exercises));
+            it('responds with 404 and an error message', () => {
+                return supertest(app)
+                    .delete('/api/exercises/1/learn-pages/1/hints/1')
+                    .set('Authorization', helpers.makeAuthHeader(adminUser))
+                    .expect(404, {
+                        error: `Exercise learn page not found`,
+                    });
+            });
+        });
+
+        context('Given that the chapter and Learn Page exist', () => {
+            context('Given that the hint does not exist', () => {
+                beforeEach('seed Learn Pages', () => helpers.seedLearnPages(db, testUsers, stories, exercises, learnPages, learnHints));
+                it('responds with 404 and an error message', () => {
+                    return supertest(app)
+                        .delete('/api/exercises/1/learn-pages/1/hints/1000')
+                        .expect(404, {
+                            error: 'Hint not found',
+                        });
+                });
+            });
+
+            context('Given that the hint does exist', () => {
+                beforeEach('seed Learn Pages', () => helpers.seedLearnPages(db, testUsers, stories, exercises, learnPages, learnHints));
+                context('Given that there is no auth header', () => {
+                    it('responds with 401 and an error message', () => {
+                        return supertest(app)
+                            .delete('/api/exercises/1/learn-pages/1/hints/1')
+                            .expect(401, {
+                                error: 'Missing bearer token', 
+                            });
+                    });
+                });
+
+                context('Given that there is an auth header', () => {
+                    context('Given that the user does not have admin privileges', () => {
+                        it('responds with 401 and an error message', () => {
+                            return supertest(app)
+                                .delete('/api/exercises/1/learn-pages/1/hints/1')
+                                .set('Authorization', helpers.makeAuthHeader(nonAdminUser))
+                                .expect(401, {
+                                    error: 'This account does not have admin privileges', 
+                                });
+                        });
+                    });
+
+                    context('Given that the user does have admin privileges', () => {
+                        it('responds with 204 and removes the requested hint', () => {
+                            const hintToDelete = learnHints[0];
+                            const expectedHints = learnHints.filter(h => h.id !== hintToDelete.id && h.exercise_page_id === hintToDelete.exercise_page_id);
+                            return supertest(app)
+                                .delete(`/api/exercises/1/learn-pages/1/hints/${hintToDelete.id}`)
+                                .set('Authorization', helpers.makeAuthHeader(adminUser))
+                                .expect(204)
+                                .then(() =>
+                                    supertest(app)
+                                        .get('/api/exercises/1/learn-pages/1/hints')
+                                        .expect(200, expectedHints)
+                                );
+                        });
+                    });
                 });
             });
         });
