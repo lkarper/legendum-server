@@ -4,7 +4,7 @@ const supertest = require('supertest');
 const app = require('../src/app');
 const helpers = require('./test-helpers');
 
-describe.only('Exercises endpoints', () => {
+describe('Exercises endpoints', () => {
     let db;
 
     const testUsers = helpers.makeUsersArray();
