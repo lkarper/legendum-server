@@ -77,8 +77,17 @@ notesRouter
             .catch(next);
     })
     .patch(jsonBodyParser, (req, res, next) => {
-        const { hint_id, custom_note, date_modified } = req.body;
-        const noteToUpdate = { hint_id, custom_note, date_modified };
+        const { 
+            hint_id, 
+            custom_note, 
+            date_modified, 
+        } = req.body;
+        
+        const noteToUpdate = { 
+            hint_id, 
+            custom_note, 
+            date_modified,
+        };
 
         const numberOfValues = Object.values(noteToUpdate).filter(Boolean).length;
         if (numberOfValues === 0) {
