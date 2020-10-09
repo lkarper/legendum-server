@@ -3,7 +3,7 @@ const ProgressService = {
         return db
             .from('legendum_completed_exercises AS lce')
             .select('*')
-            .join('legendum_exercises AS le','lce.exercise_id', 'le.id')
+            .join('legendum_exercises AS le','lce.chapter_number', 'le.chapter_number')
             .where('lce.id', id)
             .first();
     },
@@ -12,12 +12,12 @@ const ProgressService = {
             .from('legendum_completed_exercises AS lce')
             .select(
                 'lce.id',
-                'lce.exercise_id',
+                'lce.chapter_number',
                 'lce.date_completed',
                 'le.exercise_title',
                 'le.exercise_translation',
             )
-            .join('legendum_exercises AS le','lce.exercise_id', 'le.id')
+            .join('legendum_exercises AS le','lce.chapter_number', 'le.chapter_number')
             .where('lce.user_id', id);
     },
     insertProgress(db, newProgress) {
