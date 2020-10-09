@@ -21,7 +21,7 @@ const NotesService = {
             .first();
     },
     getByUserId(db, id) {
-        return db
+        return db('legendum_saved_notes AS lsn')
             .select(
                 'lsn.id',
                 'lsn.hint_id',
