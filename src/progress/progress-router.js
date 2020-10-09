@@ -18,11 +18,18 @@ progressRouter
             .catch(next);
     })
     .post(requireAuth, jsonBodyParser, (req, res, next) => {
-        const { exercise_id } = req.body;
-        const completedExercise = {
-            exercise_id,
-            user_id: req.user.id,
+        const { chapter_number } = req.body;
+
+        if (!chapter_number) {
+            return res.status(400).json({
+                error: `Missing 'chapter_number' in request body`,
+            });
         }
+        
+        const completedExercise = {
+            chapter_number,
+            user_id: req.user.id,
+        };
 
         ProgressService.insertProgress(
             req.app.get('db'),
