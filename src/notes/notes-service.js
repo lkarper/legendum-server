@@ -6,6 +6,7 @@ const NotesService = {
             .from('legendum_saved_notes AS lsn')
             .select(
                 'lsn.id',
+                'lsn.user_id',
                 'lsn.hint_id',
                 'lsn.custom_note',
                 'lsn.date_modified',
@@ -24,6 +25,7 @@ const NotesService = {
         return db('legendum_saved_notes AS lsn')
             .select(
                 'lsn.id',
+                'lsn.user_id',
                 'lsn.hint_id',
                 'lsn.custom_note',
                 'lsn.date_modified',
