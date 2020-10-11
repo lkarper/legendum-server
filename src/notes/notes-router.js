@@ -1,6 +1,7 @@
 const express = require('express');
 const path = require('path');
 const NotesService = require('./notes-service');
+const ExercisesService = require('../exercises/exercises-service');
 const { requireAuth } = require('../middleware/jwt-auth');
 
 const notesRouter = express.Router();
@@ -36,15 +37,26 @@ notesRouter
         newNote.custom_note = custom_note;
         newNote.user_id = req.user.id;
 
-        NotesService.insertNote(
+        ExercisesService.getHintById(
             req.app.get('db'),
-            newNote
+            hint_id
         )
-            .then(note => {
-                res
-                    .status(201)
-                    .location(path.posix.join(req.originalUrl, `/${note.id}`))
-                    .json(NotesService.serializeNote(note));
+            .then(hint => {
+                if (!hint) {
+                    return res.status(404).json({ error: `Hint with id equal to 'hint_id' not found` });
+                } else {
+                    NotesService.insertNote(
+                        req.app.get('db'),
+                        newNote
+                    )
+                        .then(note => {
+                            res
+                                .status(201)
+                                .location(path.posix.join(req.originalUrl, `/${note.id}`))
+                                .json(NotesService.serializeNote(note));
+                        })
+                        .catch(next);
+                }
             })
             .catch(next);
     });
@@ -106,15 +118,37 @@ notesRouter
             });
         }
 
-        NotesService.updateNote(
-            req.app.get('db'),
-            req.params.note_id,
-            noteToUpdate
-        )
-            .then(numRowsAffected => {
-                res.status(204).end();
-            })
-            .catch(next);
+        if (hint_id) {
+            ExercisesService.getHintById(
+                req.app.get('db'),
+                hint_id
+            )
+                .then(hint => {
+                    if (!hint) {
+                        return res.status(404).json({ error: `Hint with id equal to 'hint_id' not found` });
+                    } else {
+                        NotesService.updateNote(
+                            req.app.get('db'),
+                            req.params.note_id,
+                            noteToUpdate
+                        )
+                            .then(numRowsAffected => {
+                                res.status(204).end();
+                            })
+                            .catch(next);
+                    }
+                })
+        } else {
+            NotesService.updateNote(
+                req.app.get('db'),
+                req.params.note_id,
+                noteToUpdate
+            )
+                .then(numRowsAffected => {
+                    res.status(204).end();
+                })
+                .catch(next);
+        }
     });
 
 module.exports = notesRouter;
