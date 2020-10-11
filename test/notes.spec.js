@@ -226,4 +226,67 @@ describe.only('Notes endpoints', () => {
             });
         });
     });
+
+    describe('DELETE /api/notes/:note_id', () => {
+        beforeEach('seed Notes fixtures', () => helpers.seedNotesFixtures(db, testUsers, stories, exercises, learnPages, learnHints, testNotes));
+        
+        context('Given that there is no auth header', () => {
+            it('returns 401 and an error message', () => {
+                return supertest(app)
+                    .delete('/api/notes/1')
+                    .expect(401, {
+                        error: 'Missing bearer token', 
+                    });
+            });
+        });
+
+        context('Given that there is an auth header', () => {
+            context('Given that the note with id equal to note_id does not exist', () => {
+                it('responds with 404 and an error message', () => {
+                    return supertest(app)
+                        .delete('/api/notes/1000')
+                        .set('Authorization', helpers.makeAuthHeader(testUser))
+                        .expect(404, {
+                            error: {
+                                message: `Note doesn't exist`,
+                            },
+                        });
+                });
+            });
+
+            context('Given that the note with id equal to note_id does exist', () => {
+                context('Given that the user making the request does not own the note', () => {
+                    it('responds with 401 and an error message', () => {
+                        const noteNotBelongingToUser = testNotes.find(n => n.user_id !== testUser.id);
+                        return supertest(app)
+                            .delete(`/api/notes/${noteNotBelongingToUser.id}`)
+                            .set('Authorization', helpers.makeAuthHeader(testUser))
+                            .expect(401, { 
+                                error: `Unauthorized request`, 
+                            });
+                    });
+                });
+
+                context('Given that the user making the request does own the note', () => {
+                    it('responds with 204 and removes the note', () => {
+                        const noteBelongingToUser = testNotes.find(n => n.user_id === testUser.id);
+                        const expectedNotes = testNotes
+                            .filter(n => n.id !== noteBelongingToUser.id && n.user_id === testUser.id)
+                            .map(n => helpers.makeExpectedNote(n, learnHints, learnPages, exercises));
+                        
+                        return supertest(app)
+                            .delete(`/api/notes/${noteBelongingToUser.id}`)
+                            .set('Authorization', helpers.makeAuthHeader(testUser))
+                            .expect(204)
+                            .then(() =>
+                                supertest(app)
+                                    .get('/api/notes')
+                                    .set('Authorization', helpers.makeAuthHeader(testUser))
+                                    .expect(expectedNotes)
+                            );
+                    });
+                });
+            });
+        });
+    });
 });
