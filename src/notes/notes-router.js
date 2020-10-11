@@ -61,7 +61,11 @@ notesRouter
                     return res.status(404).json({
                         error: { message: `Note doesn't exist` }
                     });
+                } else if (note.user_id !== req.user.id) {
+                    // Prevent users from accessing notes that do not belong to them
+                    return res.status(401).json({ error: `Unauthorized request` });
                 }
+
                 res.note = note;
                 next();
             })
