@@ -125,50 +125,66 @@ describe.only('Notes endpoints', () => {
             });
 
             context('Given that the request body is complete', () => {
-                it('responds with 201 and creates a new note', function() {
-                    this.retries(3);
-                    
-                    const hint = learnHints.find(h => h.id === newNote.hint_id);
-                    const learnPage = learnPages.find(p => hint.exercise_page_id === p.id);
-                    const exercise = exercises.find(e => e.chapter_number === learnPage.chapter_number);
+                context('Given that a hint with id equal to hint_id does not exist', () => {
+                    it('responds with 404 and an error message', () => {
+                        const postAttempt = { ...newNote, hint_id: 1000 };
 
-                    return supertest(app)
-                        .post('/api/notes')
-                        .set('Authorization', helpers.makeAuthHeader(testUser))
-                        .send(newNote)
-                        .expect(201)
-                        .expect(res => {
-                            expect(res.body).to.have.property('id');
-                            expect(res.header.location).to.eql(`/api/notes/${res.body.id}`);
-                            expect(res.body.chapter_number).to.eql(exercise.chapter_number);
-                            expect(res.body.custom_note).to.eql(newNote.custom_note);
-                            const expectedDate = new Date().toLocaleString()
-                            const actualDate = new Date(res.body.date_modified).toLocaleString()
-                            expect(actualDate).to.eql(expectedDate);
-                            expect(res.body.exercise_title).to.eql(exercise.exercise_title);
-                            expect(res.body.exercise_translation).to.eql(exercise.exercise_translation);
-                            expect(res.body.hint).to.eql(hint.hint);
-                            expect(res.body.hint_id).to.eql(newNote.hint_id);
-                        })
-                        .then(postRes =>
-                            supertest(app)
-                                .get(`/api/notes/${postRes.body.id}`)
-                                .set('Authorization', helpers.makeAuthHeader(testUser))
-                                .expect(res => {
-                                    expect(res.body.id).to.eql(postRes.body.id);
-                                    expect(res.body.chapter_number).to.eql(exercise.chapter_number);
-                                    expect(res.body.custom_note).to.eql(newNote.custom_note);
-                                    const expectedDate = new Date().toLocaleString()
-                                    const actualDate = new Date(res.body.date_modified).toLocaleString()
-                                    expect(actualDate).to.eql(expectedDate);
-                                    expect(res.body.exercise_title).to.eql(exercise.exercise_title);
-                                    expect(res.body.exercise_translation).to.eql(exercise.exercise_translation);
-                                    expect(res.body.hint).to.eql(hint.hint);
-                                    expect(res.body.hint_id).to.eql(newNote.hint_id);
-                                })    
-                        );
+                        return supertest(app)
+                            .post('/api/notes')
+                            .set('Authorization', helpers.makeAuthHeader(testUser))
+                            .send(postAttempt)
+                            .expect(404, {
+                                error: `Hint with id equal to 'hint_id' not found`,
+                            });
+                    });
                 });
-            });
+                
+                context('Given that a hint with id equal to hint_id does exist', () => {
+                    it('responds with 201 and creates a new note', function() {
+                        this.retries(3);
+                        
+                        const hint = learnHints.find(h => h.id === newNote.hint_id);
+                        const learnPage = learnPages.find(p => hint.exercise_page_id === p.id);
+                        const exercise = exercises.find(e => e.chapter_number === learnPage.chapter_number);
+    
+                        return supertest(app)
+                            .post('/api/notes')
+                            .set('Authorization', helpers.makeAuthHeader(testUser))
+                            .send(newNote)
+                            .expect(201)
+                            .expect(res => {
+                                expect(res.body).to.have.property('id');
+                                expect(res.header.location).to.eql(`/api/notes/${res.body.id}`);
+                                expect(res.body.chapter_number).to.eql(exercise.chapter_number);
+                                expect(res.body.custom_note).to.eql(newNote.custom_note);
+                                const expectedDate = new Date().toLocaleString()
+                                const actualDate = new Date(res.body.date_modified).toLocaleString()
+                                expect(actualDate).to.eql(expectedDate);
+                                expect(res.body.exercise_title).to.eql(exercise.exercise_title);
+                                expect(res.body.exercise_translation).to.eql(exercise.exercise_translation);
+                                expect(res.body.hint).to.eql(hint.hint);
+                                expect(res.body.hint_id).to.eql(newNote.hint_id);
+                            })
+                            .then(postRes =>
+                                supertest(app)
+                                    .get(`/api/notes/${postRes.body.id}`)
+                                    .set('Authorization', helpers.makeAuthHeader(testUser))
+                                    .expect(res => {
+                                        expect(res.body.id).to.eql(postRes.body.id);
+                                        expect(res.body.chapter_number).to.eql(exercise.chapter_number);
+                                        expect(res.body.custom_note).to.eql(newNote.custom_note);
+                                        const expectedDate = new Date().toLocaleString()
+                                        const actualDate = new Date(res.body.date_modified).toLocaleString()
+                                        expect(actualDate).to.eql(expectedDate);
+                                        expect(res.body.exercise_title).to.eql(exercise.exercise_title);
+                                        expect(res.body.exercise_translation).to.eql(exercise.exercise_translation);
+                                        expect(res.body.hint).to.eql(hint.hint);
+                                        expect(res.body.hint_id).to.eql(newNote.hint_id);
+                                    })    
+                            );
+                    });    
+                });
+            }); 
         });
     });
 
@@ -231,7 +247,7 @@ describe.only('Notes endpoints', () => {
         beforeEach('seed Notes fixtures', () => helpers.seedNotesFixtures(db, testUsers, stories, exercises, learnPages, learnHints, testNotes));
         
         context('Given that there is no auth header', () => {
-            it('returns 401 and an error message', () => {
+            it('responds with 401 and an error message', () => {
                 return supertest(app)
                     .delete('/api/notes/1')
                     .expect(401, {
