@@ -478,6 +478,82 @@ function makeExpectedLearnPage(learnPage, exercise, hints) {
     };
 }
 
+function makeNotes() {
+    return [1, 2, 3, 4, 5, 6].map(num => ({
+        id: num,
+        hint_id: 1,
+        custom_note: `Custom note ${num}`,
+        date_modified: new Date().toJSON(),
+        user_id: num % 2 === 0 ? 1 : 2,
+    }));
+}
+
+function makeExpectedNote(note, learnHints, learnPages, exercises) {
+    const hint = learnHints.find(h => h.id === note.hint_id);
+    const learnPage = learnPages.find(p => hint.exercise_page_id === p.id);
+    const exercise = exercises.find(e => e.chapter_number === learnPage.chapter_number);
+    return {
+        chapter_number: exercise.chapter_number,
+        custom_note: note.custom_note,
+        date_modified: note.date_modified,
+        exercise_title: exercise.exercise_title,
+        exercise_translation: exercise.exercise_translation,
+        hint: hint.hint,
+        hint_id: note.hint_id,
+        id: note.id,
+    };
+}
+
+function makeMaliciousNotesFixtures(userId) {
+    const {
+        maliciousStory,
+        maliciousExercise,
+        maliciousLearnPage,
+        maliciousHint,
+    } = makeMaliciousExerciseFixtures();
+
+    const maliciousNote = {
+        id: 911,
+        hint_id: maliciousHint.id,
+        custom_note: 'Naughty naughty very naughty <script>alert("xss");</script>',
+        date_modified: new Date().toJSON(),
+        user_id: userId,
+    };
+
+    return {
+        maliciousStory,
+        maliciousExercise,
+        maliciousLearnPage,
+        maliciousHint,
+        maliciousNote,
+    };
+}
+
+function makeSanatizedNote(note) {
+    const {
+        sanatizedExercise,
+        sanatizedHint,
+    } = makeSanatizedExerciseFixtures();
+
+    return {
+        chapter_number: sanatizedExercise.chapter_number,
+        custom_note: 'Naughty naughty very naughty &lt;script&gt;alert(\"xss\");&lt;/script&gt;',
+        date_modified: note.date_modified,
+        exercise_title: sanatizedExercise.exercise_title,
+        exercise_translation: sanatizedExercise.exercise_translation,
+        hint: sanatizedHint.hint,
+        hint_id: note.hint_id,
+        id: note.id,
+    };
+}
+
+function seedNotesFixtures(db, users, stories, exercises, learnPages, hints, notes) {
+    return db.transaction(async trx => {
+        await seedLearnPages(db, users, stories, exercises, learnPages, hints);
+        await trx.into('legendum_saved_notes').insert(notes);
+    });
+}
+
 function makeAuthHeader(user, secret = process.env.JWT_SECRET) {
     const token = jwt.sign(
         { user_id: user.id }, 
@@ -514,4 +590,9 @@ module.exports = {
     seedLearnPages,
     seedDoPages,
     makeExpectedDoPage,
+    makeNotes,
+    seedNotesFixtures,
+    makeExpectedNote,
+    makeMaliciousNotesFixtures,
+    makeSanatizedNote,
 };
