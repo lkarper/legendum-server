@@ -307,6 +307,7 @@ describe.only('Notes endpoints', () => {
     });
     
     describe('PATCH /api/notes/:note_id', () => {
+        beforeEach('seed Notes fixtures', () => helpers.seedNotesFixtures(db, testUsers, stories, exercises, learnPages, learnHints, testNotes));
         context('Given that there is no auth header', () => {
             it('responds with 401 and an error message', () => {
                 return supertest(app)
@@ -319,7 +320,81 @@ describe.only('Notes endpoints', () => {
         });
 
         context('Given that there is an auth header', () => {
-            
-        })
+            context('Given that a note with id equal to note_id does not exist', () => {
+                it('responds with 404 and an error message', () => {
+                    return supertest(app)
+                        .patch('/api/notes/1000')
+                        .set('Authorization', helpers.makeAuthHeader(testUser))
+                        .send({ custom_note: 'Updated note' })
+                        .expect(404, {
+                            error: {
+                                message: `Note doesn't exist`,
+                            },
+                        });
+                });              
+            });
+
+            context('Given that the note with id equal to note_id does exist', () => {
+                context('Given that the user making the request does not own the note', () => {
+                    it('responds with 401 and an error message', () => {
+                        const noteNotBelongingToUser = testNotes.find(n => n.user_id !== testUser.id);
+                        return supertest(app)
+                            .patch(`/api/notes/${noteNotBelongingToUser.id}`)
+                            .set('Authorization', helpers.makeAuthHeader(testUser))
+                            .send({ custom_note: 'Updated note' })
+                            .expect(401, { 
+                                error: `Unauthorized request`, 
+                            });
+                    });
+                });
+
+                context('Given that the user make the request does own the note', () => {
+                    const noteBelongingToUser = testNotes.find(n => n.user_id === testUser.id);
+                    
+                    context('Given that the request body contains no fields to update', () => {
+                        it('responds with 400 and an error message', () => {
+                            return supertest(app)
+                            .patch(`/api/notes/${noteBelongingToUser.id}`)
+                            .set('Authorization', helpers.makeAuthHeader(testUser))
+                            .send({})
+                            .expect(400, {
+                                error: {
+                                    message: `Request body must contain one of 'hint_id', 'custom_note', or 'date_modified'`,
+                                },
+                            });
+                        });
+                    });
+
+                    context('Given that the request body contains fields to update', () => {
+                        it('responds with 204 and updates the note', () => {
+                            const noteToUpdate = { ...noteBelongingToUser };
+                            const updatedNoteFields = {
+                                hint_id: 2,
+                                custom_note: 'Update note',
+                                date_modified: new Date().toJSON(),
+                            };
+                            const expectedNote = helpers.makeExpectedNote(
+                                { ...noteToUpdate, ...updatedNoteFields }, 
+                                learnHints, 
+                                learnPages, 
+                                exercises
+                            );
+
+                            return supertest(app)
+                                .patch(`/api/notes/${noteToUpdate.id}`)
+                                .set('Authorization', helpers.makeAuthHeader(testUser))
+                                .send(updatedNoteFields)
+                                .expect(204)
+                                .then(() => 
+                                    supertest(app)
+                                        .get(`/api/notes/${noteToUpdate.id}`)
+                                        .set('Authorization', helpers.makeAuthHeader(testUser))
+                                        .expect(200, expectedNote)    
+                                );
+                        });
+                    });
+                });
+            });
+        });
     });
 });
