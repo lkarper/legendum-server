@@ -305,4 +305,21 @@ describe.only('Notes endpoints', () => {
             });
         });
     });
+    
+    describe('PATCH /api/notes/:note_id', () => {
+        context('Given that there is no auth header', () => {
+            it('responds with 401 and an error message', () => {
+                return supertest(app)
+                    .patch('/api/notes/1')
+                    .send({ custom_note: 'Updated note' })
+                    .expect(401, {
+                        error: 'Missing bearer token', 
+                    });
+            });
+        });
+
+        context('Given that there is an auth header', () => {
+            
+        })
+    });
 });
