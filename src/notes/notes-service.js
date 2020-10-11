@@ -64,9 +64,9 @@ const NotesService = {
             custom_note: xss(note.custom_note),
             date_modified: new Date(note.date_modified),
             chapter_number: note.chapter_number,
-            exercise_title: note.exercise_title,
-            exercise_translation: note.exercise_translation,
-            hint: note.hint,
+            exercise_title: xss(note.exercise_title),
+            exercise_translation: xss(note.exercise_translation),
+            hint: xss(note.hint),
         };
     },
 }
