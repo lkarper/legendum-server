@@ -558,7 +558,7 @@ function makeProgressFixtures(testUsers) {
     const {
         stories,
         exercises,
-    } = helpers.makeExercisesFixtures();
+    } = makeExercisesFixtures();
 
     const progress = [];
 
@@ -578,6 +578,24 @@ function makeProgressFixtures(testUsers) {
         exercises,
         progress,
     };
+}
+
+function makeExpectedProgress(progress, exercises) {
+    const exercise = exercises.find(e => e.chapter_number === progress.chapter_number);
+    return {
+        chapter_number: progress.chapter_number,
+        date_completed: progress.date_completed,
+        exercise_title: exercise.exercise_title,
+        exercise_translation: exercise.exercise_translation,
+        id: progress.id,
+    };
+}
+
+function seedProgress(db, users, stories, exercises, progress) {
+    return db.transaction(async trx => {
+        await seedExercises(db, users, stories, exercises);
+        await trx.into('legendum_completed_exercises').insert(progress);
+    });
 }
 
 function makeAuthHeader(user, secret = process.env.JWT_SECRET) {
@@ -622,4 +640,6 @@ module.exports = {
     makeMaliciousNotesFixtures,
     makeSanatizedNote,
     makeProgressFixtures,
+    seedProgress,
+    makeExpectedProgress,
 };
