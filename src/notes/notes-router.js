@@ -18,7 +18,11 @@ notesRouter
             .catch(next);
     })
     .post(requireAuth, jsonBodyParser, (req, res, next) => {
-        const { hint_id, custom_note } = req.body;
+        const { 
+            hint_id, 
+            custom_note,
+        } = req.body;
+        
         const newNote = { hint_id };
 
         for (const [key, value] of Object.entries(newNote)) {
