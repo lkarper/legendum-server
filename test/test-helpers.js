@@ -554,6 +554,32 @@ function seedNotesFixtures(db, users, stories, exercises, learnPages, hints, not
     });
 }
 
+function makeProgressFixtures(testUsers) {
+    const {
+        stories,
+        exercises,
+    } = helpers.makeExercisesFixtures();
+
+    const progress = [];
+
+    exercises.forEach((e, i) => {
+        testUsers.forEach((user, index) => {
+            progress.push({
+                id:  index + 1 + (i * testUsers.length),
+                chapter_number: e.chapter_number,
+                user_id: user.id,
+                date_completed: new Date().toJSON(),
+            });
+        });
+    });
+
+    return {
+        stories, 
+        exercises,
+        progress,
+    };
+}
+
 function makeAuthHeader(user, secret = process.env.JWT_SECRET) {
     const token = jwt.sign(
         { user_id: user.id }, 
@@ -595,4 +621,5 @@ module.exports = {
     makeExpectedNote,
     makeMaliciousNotesFixtures,
     makeSanatizedNote,
+    makeProgressFixtures,
 };
