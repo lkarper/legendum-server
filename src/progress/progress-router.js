@@ -91,7 +91,7 @@ progressRouter
     .delete((req, res, next) => {
         ProgressService.removeProgress(
             req.app.get('db'),
-            req.params.id
+            req.params.progress_id
         )
             .then(() => {
                 res.status(204).end();
