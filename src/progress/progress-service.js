@@ -29,7 +29,12 @@ const ProgressService = {
             .then(progress => 
                 ProgressService.getById(db, progress.id)    
             );
-    }
+    },
+    removeProgress(db, id) {
+        return db('legendum_completed_exercises')
+            .where({ id })
+            .delete();
+    },
 }
 
 module.exports = ProgressService;
