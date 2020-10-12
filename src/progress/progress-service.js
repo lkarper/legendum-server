@@ -2,7 +2,14 @@ const ProgressService = {
     getById(db, id) {
         return db
             .from('legendum_completed_exercises AS lce')
-            .select('*')
+            .select(
+                'lce.id',
+                'lce.chapter_number',
+                'lce.date_completed',
+                'le.exercise_title',
+                'le.exercise_translation',
+                'lce.user_id'
+            )
             .join('legendum_exercises AS le','lce.chapter_number', 'le.chapter_number')
             .where('lce.id', id)
             .first();
