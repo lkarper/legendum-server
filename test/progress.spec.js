@@ -1,3 +1,4 @@
+const { expect } = require('chai');
 const knex = require('knex');
 const app = require('../src/app');
 const helpers = require('./test-helpers');
@@ -61,6 +62,91 @@ describe.only('Progress endpoints', () => {
                         .get('/api/progress')
                         .set('Authorization', helpers.makeAuthHeader(testUser))
                         .expect(200, expectedProgress);
+                });
+            });
+        });
+    });
+
+    describe('POST /api/exercises', () => {
+        beforeEach('seed exercises', () => helpers.seedExercises(db, testUsers, stories, exercises));
+        const newProgress = {
+            chapter_number: 1,
+        };
+
+        context('Given that there is no auth header', () => {
+            it('responds with 401 and an error message', () => {
+                return supertest(app)
+                    .post('/api/progress')
+                    .send(newProgress)
+                    .expect(401, {
+                        error: `Missing bearer token`,
+                    });
+            });
+        });
+        
+        context('Given that there is an auth header', () => {
+            context('Given that chapter_number is missing from the request body', () => {
+                it('responds with 400 and an error message', () => {
+                    return supertest(app)
+                        .post('/api/progress')
+                        .set('Authorization', helpers.makeAuthHeader(testUser))
+                        .send({})
+                        .expect(400, {
+                            error: `Missing 'chapter_number' in request body`,
+                        });
+                });
+            });
+            
+            context('Given that the chapter with chapter_number does not exist', () => {
+                it('responds with 404 and an error message', () => {
+                    return supertest(app)
+                        .post('/api/progress')
+                        .set('Authorization', helpers.makeAuthHeader(testUser))
+                        .send({ chapter_number: 1000 })
+                        .expect(404, {
+                            error: `Exercise not found`,
+                        });
+                });
+            });
+
+            context('Given that the chapter with chapter_number does exist', () => {
+                it('responds with 201 and creates a progress entry', function() {
+                    this.retries(3);
+
+                    const newProgress = {
+                        chapter_number: 1,
+                    };
+                    const exercise = exercises.find(e => e.chapter_number === newProgress.chapter_number);
+
+                    return supertest(app)
+                        .post('/api/progress')
+                        .set('Authorization', helpers.makeAuthHeader(testUser))
+                        .send(newProgress)
+                        .expect(201)
+                        .expect(res => {
+                            expect(res.body).to.have.property('id');
+                            expect(res.headers.location).to.eql(`/api/progress/${res.body.id}`);
+                            expect(res.body.chapter_number).to.eql(newProgress.chapter_number);
+                            const expectedDate = new Date().toLocaleString()
+                            const actualDate = new Date(res.body.date_completed).toLocaleString()
+                            expect(actualDate).to.eql(expectedDate);
+                            expect(res.body.exercise_title).to.eql(exercise.exercise_title);
+                            expect(res.body.exercise_translation).to.eql(exercise.exercise_translation);
+                        })
+                        .then(postRes => 
+                            supertest(app)
+                                .get(`/api/progress/${postRes.body.id}`)
+                                .set('Authorization', helpers.makeAuthHeader(testUser))
+                                .expect(res => {
+                                    expect(res.body.id).to.eql(postRes.body.id);
+                                    expect(res.body.chapter_number).to.eql(newProgress.chapter_number);
+                                    const expectedDate = new Date().toLocaleString()
+                                    const actualDate = new Date(res.body.date_completed).toLocaleString()
+                                    expect(actualDate).to.eql(expectedDate);
+                                    expect(res.body.exercise_title).to.eql(exercise.exercise_title);
+                                    expect(res.body.exercise_translation).to.eql(exercise.exercise_translation);                                        
+                                })    
+                        );
                 });
             });
         });
