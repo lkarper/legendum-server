@@ -1,9 +1,8 @@
-const { expect } = require('chai');
 const knex = require('knex');
 const app = require('../src/app');
 const helpers = require('./test-helpers');
 
-describe.only('Progress endpoints', () => {
+describe('Progress endpoints', () => {
     let db;
 
     const testUsers = helpers.makeUsersArray();
@@ -197,6 +196,66 @@ describe.only('Progress endpoints', () => {
                             .get(`/api/progress/${progressBelongingToUser.id}`)
                             .set('Authorization', helpers.makeAuthHeader(testUser))
                             .expect(200, expectedProgress);
+                    });
+                });
+            });
+        });
+    });
+
+    describe('DELETE /api/progress/:progress_id', () => {
+        beforeEach('seed progress', () => helpers.seedProgress(db, testUsers, stories, exercises, progress));
+        context('Given that there is no auth header', () => {
+            it('responds with 401 and an error message', () => {
+                return supertest(app)
+                    .delete(`/api/progress/1`)
+                    .expect(401, {
+                        error: `Missing bearer token`,
+                    });
+            });
+        });
+
+        context('Given that there is an auth header', () => {
+            context('Given that the progress record with id equal to progress_id does not exist', () => {
+                it('responds with 404 and an error message', () => {
+                    return supertest(app)
+                        .delete(`/api/progress/1000`)
+                        .set('Authorization', helpers.makeAuthHeader(testUser))
+                        .expect(404, {
+                            error: `Progress record not found`,
+                        });
+                });
+            });
+
+            context('Given that the progress entry with id equal to progress_id does exist', () => {
+                context('Given that the user does not own the requested progress entry', () => {
+                    it('responds with 401 and an error message', () => {
+                        const progressNotBelongingToUser = progress.find(p => p.user_id !== testUser.id);
+                        return supertest(app)
+                            .delete(`/api/progress/${progressNotBelongingToUser.id}`)
+                            .set('Authorization', helpers.makeAuthHeader(testUser))
+                            .expect(401, {
+                                error: `Unauthorized request`,
+                            });
+                    });
+                });
+
+                context('Given that the user does own the request progress entry', () => {
+                    it('responds with 200 and the requested progress entry', () => {
+                        const progressBelongingToUser = progress.find(p => p.user_id === testUser.id);
+                        const expectedProgress = progress
+                            .filter(p => p.id !== progressBelongingToUser.id && p.user_id === testUser.id)
+                            .map(p => helpers.makeExpectedProgress(p, exercises));
+                        
+                        return supertest(app)
+                            .delete(`/api/progress/${progressBelongingToUser.id}`)
+                            .set('Authorization', helpers.makeAuthHeader(testUser))
+                            .expect(204)
+                            .then(res =>
+                                supertest(app)
+                                    .get('/api/progress')
+                                    .set('Authorization', helpers.makeAuthHeader(testUser)) 
+                                    .expect(200, expectedProgress)   
+                            );
                     });
                 });
             });
