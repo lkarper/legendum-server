@@ -80,7 +80,13 @@ progressRouter
             .catch(next);
     })
     .get((req, res, next) => {
-        res.json(res.progress);
+        res.json({
+            id: res.progress.id,
+            chapter_number: res.progress.chapter_number,
+            date_completed: res.progress.date_completed,
+            exercise_title: res.progress.exercise_title,
+            exercise_translation: res.progress.exercise_translation,
+        });
     })
     .delete((req, res, next) => {
         ProgressService.removeProgress(
