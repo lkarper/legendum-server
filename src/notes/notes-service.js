@@ -49,13 +49,13 @@ const NotesService = {
                 NotesService.getById(db, note.id)
             );   
     },
-    updateNote(knex, id, newNoteFields) {
-        return knex('legendum_saved_notes')
+    updateNote(db, id, newNoteFields) {
+        return db('legendum_saved_notes')
             .where({ id })
             .update(newNoteFields);
     },
-    deleteNote(knex, id) {
-        return knex('legendum_saved_notes')
+    deleteNote(db, id) {
+        return db('legendum_saved_notes')
             .where({ id })
             .delete();
     },
