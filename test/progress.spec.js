@@ -151,4 +151,55 @@ describe.only('Progress endpoints', () => {
             });
         });
     });
+
+    describe('GET /api/progress/:progress_id', () => {
+        beforeEach('seed progress', () => helpers.seedProgress(db, testUsers, stories, exercises, progress));
+        context('Given that there is no auth header', () => {
+            it('responds with 401 and an error message', () => {
+                return supertest(app)
+                    .get('/api/progress/1')
+                    .expect(401, {
+                        error: 'Missing bearer token',
+                    });
+            });
+        });
+
+        context('Given that there is an auth header', () => {
+            context('Given that the progress entry with id equal to progress_id does not exist', () => {
+                it('responds with 404 and an error message', () => {
+                    return supertest(app)
+                        .get('/api/progress/1000')
+                        .set('Authorization', helpers.makeAuthHeader(testUser))
+                        .expect(404, {
+                            error: 'Progress record not found',
+                        });
+                });
+            });
+
+            context('Given that the progress entry with id equal to progress_id does exist', () => {
+                context('Given that the user does not own the requested progress entry', () => {
+                    it('responds with 401 and an error message', () => {
+                        const progressNotBelongingToUser = progress.find(p => p.user_id !== testUser.id);
+                        return supertest(app)
+                            .get(`/api/progress/${progressNotBelongingToUser.id}`)
+                            .set('Authorization', helpers.makeAuthHeader(testUser))
+                            .expect(401, {
+                                error: `Unauthorized request`,
+                            });
+                    });
+                });
+
+                context('Given that the user does own the request progress entry', () => {
+                    it('responds with 200 and the requested progress entry', () => {
+                        const progressBelongingToUser = progress.find(p => p.user_id === testUser.id);
+                        const expectedProgress = helpers.makeExpectedProgress(progressBelongingToUser, exercises);
+                        return supertest(app)
+                            .get(`/api/progress/${progressBelongingToUser.id}`)
+                            .set('Authorization', helpers.makeAuthHeader(testUser))
+                            .expect(200, expectedProgress);
+                    });
+                });
+            });
+        });
+    });
 });
