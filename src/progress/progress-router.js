@@ -1,6 +1,7 @@
 const express = require('express');
 const path = require('path');
 const ProgressService = require('./progress-service');
+const ExercisesService = require('../exercises/exercises-service');
 const { requireAuth } = require('../middleware/jwt-auth');
 
 const progressRouter = express.Router();
@@ -9,10 +10,9 @@ const jsonBodyParser = express.json();
 progressRouter
     .route('/')
     .get(requireAuth, (req, res, next) => {
-        const user_id = req.user.id;
         ProgressService.getByUserId(
             req.app.get('db'),
-            user_id
+            req.user.id
         )
             .then(progress => res.json(progress))
             .catch(next);
@@ -31,17 +31,66 @@ progressRouter
             user_id: req.user.id,
         };
 
-        ProgressService.insertProgress(
+        ExercisesService.checkChapterNumberAlreadyInUse(
             req.app.get('db'),
-            completedExercise
+            chapter_number
         )
-            .then(progress => {
-                res
-                    .status(201)
-                    .location(path.posix.join(req.originalUrl, `/${progress.id}`))
-                    .json(progress);
+            .then(chapterNumberExists => {
+                if (!chapterNumberExists) {
+                    return res.status(404).json({
+                        error: `Exercise not found`,
+                    });
+                } else {
+                    ProgressService.insertProgress(
+                        req.app.get('db'),
+                        completedExercise
+                    )
+                        .then(progress => {
+                            res
+                                .status(201)
+                                .location(path.posix.join(req.originalUrl, `/${progress.id}`))
+                                .json(progress);
+                        })
+                        .catch(next);
+                }
             })
             .catch(next);
     })
+
+progressRouter
+    .route('/:progress_id')
+    .all(requireAuth)
+    .all((req, res, next) => {
+        ProgressService.getById(
+            req.app.get('db'),
+            req.params.progress_id
+        )
+            .then(progress => {
+                if (!progress) {
+                    return res.status(404).json({
+                        error: 'Progress record not found',
+                    });
+                } else if (progress.user_id !== req.user.id) {
+                    return res.status(401).json({ error: `Unauthorized request` });
+                }
+
+                res.progress = progress;
+                next();
+            })
+            .catch(next);
+    })
+    .get((req, res, next) => {
+        res.json(res.progress);
+    })
+    .delete((req, res, next) => {
+        ProgressService.removeProgress(
+            req.app.get('db'),
+            req.params.id
+        )
+            .then(() => {
+                res.status(204).end();
+            })
+            .catch(next);
+    });
 
 module.exports = progressRouter;
