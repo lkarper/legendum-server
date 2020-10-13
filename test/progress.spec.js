@@ -66,7 +66,7 @@ describe('Progress endpoints', () => {
         });
     });
 
-    describe('POST /api/exercises', () => {
+    describe('POST /api/progress', () => {
         beforeEach('seed exercises', () => helpers.seedExercises(db, testUsers, stories, exercises));
         const newProgress = {
             chapter_number: 1,
