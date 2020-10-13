@@ -1,9 +1,11 @@
 BEGIN;
+
 TRUNCATE
     legendum_dialogue
     RESTART IDENTITY CASCADE;
 
 SET CLIENT_ENCODING TO 'utf8';
+
 INSERT INTO legendum_dialogue (
     chapter_number, 
     page, 

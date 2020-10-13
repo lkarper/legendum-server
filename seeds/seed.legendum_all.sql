@@ -16,6 +16,7 @@ VALUES
     ('Adventus', 2);
 
 SET CLIENT_ENCODING TO 'utf8';
+
 INSERT INTO legendum_dialogue (
     chapter_number, 
     page, 
@@ -53,6 +54,8 @@ VALUES
     ('Exercitium prīmum: Salūtātiōnēs', 1, '(Exercise one: Greetings)'),
     ('Exercitium Secundum: Ubī est...?', 2, '(Exercise two: Where is...?)');
 
+SET CLIENT_ENCODING to 'utf8';
+
 INSERT INTO legendum_exercises_learn (chapter_number, page, text, image_url, image_alt_text, background_image_url, background_image_alt_text)
 VALUES
     (1, 1, 'Lūcius: “Salvē!”', 'https://res.cloudinary.com/legendum/image/upload/v1602251514/intro_learn_lucius_talking_khc6to.png', 'A man named Lucius speaks to a woman named Iulia.', 'https://res.cloudinary.com/legendum/image/upload/v1602251514/Countryside_small_a22a4h.jpg', 'A sunny day in the Italian countryside.'),
@@ -82,6 +85,7 @@ VALUES
     (2, 14, 'Syria et Arabia nōn in Eurōpā aut in Āfricā sed in Asiā sunt.', 'https://res.cloudinary.com/legendum/image/upload/v1602251590/Chapter%202%20Do%20Images/Syria_Arabia_vx1t1q.png', 'Map with Syria and Arabia circled.', 'https://res.cloudinary.com/legendum/image/upload/v1602251515/Room1_small_pcyxdp.jpg', 'You are in a typical Roman room with a decorated floor and painted walls.');
 
 SET CLIENT_ENCODING TO 'utf8';
+
 INSERT INTO legendum_exercises_learn_hints (exercise_page_id, hint_order_number, hint)
     VALUES
         (1, 1, '“Salvē” is a greeting like “Hello”.  It is how you greet one person.'),
@@ -130,6 +134,7 @@ INSERT INTO legendum_exercises_learn_hints (exercise_page_id, hint_order_number,
         (25, 2, '“sunt” is the plural of “est”; it means “are”.  The subjects of the verb “sunt” are “Syria” and “Arabia”, which are both first declension feminine singular nouns in the nominative case.');
 
 SET CLIENT_ENCODING to 'utf8';
+
 INSERT INTO legendum_exercises_do (
     chapter_number, 
     page, 

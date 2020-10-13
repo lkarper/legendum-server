@@ -5,6 +5,7 @@ TRUNCATE
     RESTART IDENTITY CASCADE;
 
 SET CLIENT_ENCODING TO 'utf8';
+
 INSERT INTO legendum_exercises_learn_hints (exercise_page_id, hint_order_number, hint)
     VALUES
         (1, 1, '“Salvē” is a greeting like “Hello”.  It is how you greet one person.'),
@@ -50,7 +51,6 @@ INSERT INTO legendum_exercises_learn_hints (exercise_page_id, hint_order_number,
         (24, 1, '“Nōn” is an adverb that negates verbs.  We can translate it as “not”.'),
         (24, 2, '“sed” is a conjunction; it means “but”.'),
         (25, 1, '“aut” is a conjunction; it means “or”.'),
-        (25, 2, '“sunt” is the plural of “est”; it means “are”.  The subjects of the verb “sunt” are “Syria” and “Arabia”, which are both first declension feminine singular nouns in the nominative case.')
-        ;
+        (25, 2, '“sunt” is the plural of “est”; it means “are”.  The subjects of the verb “sunt” are “Syria” and “Arabia”, which are both first declension feminine singular nouns in the nominative case.');
 
 COMMIT;
