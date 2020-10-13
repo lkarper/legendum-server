@@ -34,12 +34,6 @@ dialogueRouter
             chapter_number,
             page,
             text,
-            image_url,
-            image_alt_text,
-            choices,
-            responses_to_choices,
-            background_image_url,
-            background_image_alt_text,
         };
 
         for (const [key, value] of Object.entries(newDialogue)) {
@@ -49,6 +43,13 @@ dialogueRouter
                 })
             }
         }
+
+        newDialogue.image_url = image_url;
+        newDialogue.image_alt_text = image_alt_text;
+        newDialogue.choices = choices;
+        newDialogue.responses_to_choices = responses_to_choices;
+        newDialogue.background_image_url = background_image_url;
+        newDialogue.background_image_alt_text = background_image_alt_text;
 
         StoriesService.hasStoryWithChapterNumber(
             req.app.get('db'),

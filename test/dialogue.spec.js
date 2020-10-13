@@ -64,7 +64,7 @@ describe('Dialogue endpoints', () => {
         });
     });
     
-    describe('POST /api/dialogue', () => {
+    describe.only('POST /api/dialogue', () => {
         const newDialogue = dialogue[0];
 
         context('Given that there is no auth header', () => {
@@ -101,12 +101,6 @@ describe('Dialogue endpoints', () => {
                     'chapter_number',
                     'page',
                     'text',
-                    'image_url',
-                    'image_alt_text',
-                    'choices',
-                    'responses_to_choices',
-                    'background_image_url',
-                    'background_image_alt_text',
                 ];
 
                 requiredFields.forEach(field => {
