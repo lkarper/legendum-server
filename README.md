@@ -3,7 +3,7 @@
 This API was designed for use with the application [Legendum](https://legendum.herokuapp.com/) ([GitHub repo](https://github.com/lkarper/legendum-proto)).  It functions independently of the app, however, and resides at the base url `https://legendum-server.herokuapp.com/api`, which is used for all API requests.
 
 ## Authorization `/auth`
-Requests to endpoints that require authorization must include an `Authorization` header with a bearer token (e.g. `"Authorization": "bearer [token]"`).  Bearer tokens are obtained by appending a valid `user_name` and `password` to the body of a POST request sent to the `/auth/login` endpoint.  Tokens expire after fifteen minutes.  Tokens may be refreshed before expiry by making a POST request to `/auth/refresh` with an `Authorization` header that contains a valid bearer token.  
+Requests to endpoints that require authorization must include an `Authorization` header with a bearer token (e.g. `"Authorization": "bearer [token]"`).  Bearer tokens are obtained by appending a valid `user_name` and `password` to the body of a `POST` request sent to the `/auth/login` endpoint.  Tokens expire after fifteen minutes.  Tokens may be refreshed before expiry by making a `POST` request to `/auth/refresh` with an `Authorization` header that contains a valid bearer token.  
 
 Requests to endpoints that require admin privileges not only require a bearer token, but the user whose credentials the token represents must also be an admin. 
 
