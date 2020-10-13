@@ -5,5 +5,5 @@ CREATE TABLE legendum_saved_notes (
     custom_note TEXT,
     date_modified TIMESTAMPTZ DEFAULT now() NOT NULL,
     user_id INTEGER
-        references legendum_users(id) ON DELETE CASCADE NOT NULL
+        REFERENCES legendum_users(id) ON DELETE CASCADE NOT NULL
 );

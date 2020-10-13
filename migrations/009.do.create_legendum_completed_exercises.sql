@@ -3,6 +3,6 @@ CREATE TABLE legendum_completed_exercises (
     chapter_number INTEGER
         REFERENCES legendum_exercises(chapter_number) ON DELETE CASCADE NOT NULL,
     user_id INTEGER
-        references legendum_users(id) ON DELETE CASCADE NOT NULL,
+        REFERENCES legendum_users(id) ON DELETE CASCADE NOT NULL,
     date_completed TIMESTAMPTZ DEFAULT now() NOT NULL
 );
