@@ -294,3 +294,14 @@ A `GET` request sent to this endpoint will return the progress entry with the `i
 #### `/:progress_id` (`DELETE`) (authorization required)
 
 A `DELETE` request sent to this endpoint will delete the progress entry with the `id` equal to the `progress_id` parameter, for the user whose information is contained in the `bearer` token appended to the `Authorization` header.
+
+## Created With
+* Node.js
+* Express.js
+* PostgreSQL
+* Knex.js
+
+## Tested With
+* Mocha
+* Chai
+* SuperTest
