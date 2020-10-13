@@ -25,7 +25,7 @@ authRouter
             .then(dbUser => {
                 if (!dbUser) {
                     return res.status(400).json({
-                        error: `Incorrect user_name or password`,
+                        error: `Incorrect username or password`,
                     });
                 }
 
@@ -33,7 +33,7 @@ authRouter
                     .then(compareMatch => {
                         if (!compareMatch) {
                             return res.status(400).json({
-                                error: 'Incorrect user_name or password',
+                                error: 'Incorrect username or password',
                             });
                         }
                         const sub = dbUser.user_name;
@@ -46,6 +46,7 @@ authRouter
             .catch(next);
     });
 
+// Endpoint used to send a new jwt to a user who is already logged in
 authRouter
     .post('/refresh', requireAuth, (req, res) => {
         const sub = req.user.user_name;
