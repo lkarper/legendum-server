@@ -36,6 +36,7 @@ progressRouter
             chapter_number
         )
             .then(chapterNumberExists => {
+                // Verifies whether exercise for progress entry exists
                 if (!chapterNumberExists) {
                     return res.status(404).json({
                         error: `Exercise not found`,

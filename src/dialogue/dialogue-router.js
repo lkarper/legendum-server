@@ -55,6 +55,7 @@ dialogueRouter
             chapter_number
         )
             .then(chapterNumberExists => {
+                // Verifies whether chapter in which dialogue is placed exists
                 if (!chapterNumberExists) {
                     return res.status(404).json({
                         error: `Chapter doesn't exist`,
@@ -143,6 +144,7 @@ dialogueRouter
                 chapter_number
             )
                 .then(chapterNumberExists => {
+                    // Verifies whether chapter in which dialogue is placed exists
                     if (!chapterNumberExists) {
                         return res.status(404).json({
                             error: `Chapter doesn't exist`,

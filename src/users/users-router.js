@@ -32,6 +32,7 @@ usersRouter
             user_name
         )
             .then(hasUserWithUserName => {
+                // Usernames must be unique
                 if (hasUserWithUserName) {
                     return res.status(400).json({ error: `Username already taken` });
                 }

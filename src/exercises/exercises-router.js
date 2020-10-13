@@ -44,6 +44,7 @@ exercisesRouter
         )
         .then(chapterNumberInUse => {
             if (chapterNumberInUse) {
+                // Each chapter may only have one exercise
                 return res.status(400).json({
                     error: `Chapter number is already in use`,
                 });
@@ -53,6 +54,7 @@ exercisesRouter
                     chapter_number
                 )
                     .then(chapterNumberExists => {
+                        // Verifies whether chapter number in which exercise is to be placed exists
                         if (!chapterNumberExists) {
                             return res.status(404).json({
                                 error: `Chapter doesn't exist`,
@@ -120,6 +122,7 @@ exercisesRouter
             )
                 .then(chapterNumberInUse => {
                     if (chapterNumberInUse) {
+                        // Each chapter may only have one exercise
                         return res.status(400).json({
                             error: `Chapter number is already in use`,
                         });
@@ -129,6 +132,7 @@ exercisesRouter
                             chapter_number
                         )
                             .then(chapterNumberExists => {
+                                // Verifies whether chapter number in which exercise is to be placed exists
                                 if (!chapterNumberExists) {
                                     return res.status(404).json({
                                         error: `Chapter doesn't exist`,

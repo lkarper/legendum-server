@@ -42,6 +42,7 @@ notesRouter
             hint_id
         )
             .then(hint => {
+                // Verifies whether hint for saved note exists
                 if (!hint) {
                     return res.status(404).json({ error: `Hint with id equal to 'hint_id' not found` });
                 } else {
@@ -69,6 +70,7 @@ notesRouter
             req.params.note_id
         )
             .then(note => {
+                // Verifies whether hint for saved note exists
                 if (!note) {
                     return res.status(404).json({
                         error: { message: `Note doesn't exist` }

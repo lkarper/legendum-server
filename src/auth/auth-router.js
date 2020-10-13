@@ -41,7 +41,8 @@ authRouter
                         res.send({
                             authToken: AuthService.createJWT(sub, payload),
                         });
-                    });
+                    })
+                    .catch(next);
             })
             .catch(next);
     });
