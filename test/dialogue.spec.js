@@ -64,7 +64,7 @@ describe('Dialogue endpoints', () => {
         });
     });
     
-    describe.only('POST /api/dialogue', () => {
+    describe('POST /api/dialogue', () => {
         const newDialogue = dialogue[0];
 
         context('Given that there is no auth header', () => {
