@@ -525,7 +525,7 @@ describe('Exercises endpoints', () => {
         });
     });
 
-    describe('GET /:chapter_number/learn-pages/:page_id', () => {
+    describe('GET /api/exercises/:chapter_number/learn-pages/:page_id', () => {
         context('Given that the chapter does not exist', () => {
             it('responds with 404 and an error message', () => {
                 return supertest(app)
@@ -562,7 +562,7 @@ describe('Exercises endpoints', () => {
         });
     });
 
-    describe('DELETE /:chapter_number/learn-pages/:page_id', () => {
+    describe('DELETE /api/exercises/:chapter_number/learn-pages/:page_id', () => {
         context('Given that the chapter does not exist', () => {
             it('responds with 404 and an error message', () => {
                 return supertest(app)
@@ -731,7 +731,7 @@ describe('Exercises endpoints', () => {
         });
     });
 
-    describe('GET /:chapter_number/learn-pages/:page_id/hints', () => {
+    describe('GET /api/exercises/:chapter_number/learn-pages/:page_id/hints', () => {
         context('Given that the chapter does not exist', () => {
             it('responds with 404 and an error message', () => {
                 return supertest(app)
@@ -800,7 +800,7 @@ describe('Exercises endpoints', () => {
         });
     });
     
-    describe('POST /:chapter_number/learn-pages/:page_id/hints', () => {
+    describe('POST /api/exercises/:chapter_number/learn-pages/:page_id/hints', () => {
         const newHint = {
             id: 1,
             exercise_page_id: 1,
@@ -911,7 +911,7 @@ describe('Exercises endpoints', () => {
         });
     });
 
-    describe('GET /:chapter_number/learn-pages/:page_id/hints/:hint_id', () => {
+    describe('GET /api/exercises/:chapter_number/learn-pages/:page_id/hints/:hint_id', () => {
         context('Given that the chapter does not exist', () => {
             it('responds with 404 and an error message', () => {
                 return supertest(app)
@@ -958,7 +958,7 @@ describe('Exercises endpoints', () => {
         });
     });
 
-    describe('DELETE /:chapter_number/learn-pages/:page_id/hints/:hint_id', () => {
+    describe('DELETE /api/exercises/:chapter_number/learn-pages/:page_id/hints/:hint_id', () => {
         context('Given that the chapter does not exist', () => {
             it('responds with 404 and an error message', () => {
                 return supertest(app)
@@ -1040,7 +1040,7 @@ describe('Exercises endpoints', () => {
         });
     });
 
-    describe('PATCH /:chapter_number/learn-pages/:page_id/hints/:hint_id', () => {
+    describe('PATCH /api/exercises/:chapter_number/learn-pages/:page_id/hints/:hint_id', () => {
         context('Given that the chapter does not exist', () => {
             it('responds with 404 and an error message', () => {
                 return supertest(app)
