@@ -91,9 +91,7 @@ notesRouter
             req.app.get('db'),
             req.params.note_id
         )
-            .then(() => {
-                res.status(204).end();
-            })
+            .then(() => res.status(204).end())
             .catch(next);
     })
     .patch(jsonBodyParser, (req, res, next) => {
@@ -132,9 +130,7 @@ notesRouter
                             req.params.note_id,
                             noteToUpdate
                         )
-                            .then(numRowsAffected => {
-                                res.status(204).end();
-                            })
+                            .then(numRowsAffected => res.status(204).end())
                             .catch(next);
                     }
                 })
@@ -144,9 +140,7 @@ notesRouter
                 req.params.note_id,
                 noteToUpdate
             )
-                .then(numRowsAffected => {
-                    res.status(204).end();
-                })
+                .then(numRowsAffected => res.status(204).end())
                 .catch(next);
         }
     });

@@ -71,6 +71,7 @@ progressRouter
                         error: 'Progress record not found',
                     });
                 } else if (progress.user_id !== req.user.id) {
+                    // Prevents users from accessing progress entries that do not belong to them
                     return res.status(401).json({ error: `Unauthorized request` });
                 }
 
@@ -93,9 +94,7 @@ progressRouter
             req.app.get('db'),
             req.params.progress_id
         )
-            .then(() => {
-                res.status(204).end();
-            })
+            .then(() => res.status(204).end())
             .catch(next);
     });
 

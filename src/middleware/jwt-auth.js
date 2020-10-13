@@ -34,6 +34,7 @@ function requireAuth(req, res, next) {
     }
 }
 
+// Admin privileges are required for some routes
 function verifyAdminPrivileges(req, res, next) {
     if (!req.user.admin) {
         return res.status(401).json({

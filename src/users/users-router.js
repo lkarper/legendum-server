@@ -38,7 +38,6 @@ usersRouter
 
                 return UsersService.hashPassword(password)
                     .then(hashedPassword => {
-
                         const newUser = {
                             user_name,
                             password: hashedPassword,
@@ -55,8 +54,10 @@ usersRouter
                                     .status(201)
                                     .location(path.posix.join(req.originalUrl, `/${user.id}`))
                                     .json(UsersService.serializeUser(user));
-                            });
-                        })
+                            })
+                            .catch(next);
+                    })
+                    .catch(next);
             })
             .catch(next);
     });

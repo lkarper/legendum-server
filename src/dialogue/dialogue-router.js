@@ -13,7 +13,7 @@ dialogueRouter
     .get((req, res, next) => {
         DialogueService.getAllDialogue(req.app.get('db'))
             .then(dialogue => {
-                return res.json(dialogue.map(DialogueService.serializeDialogue));
+                res.json(dialogue.map(DialogueService.serializeDialogue));
             })
             .catch(next);
     })
@@ -93,7 +93,7 @@ dialogueRouter
     .route('/:dialogue_id')
     .all(checkDialogueExists)
     .get((req, res, next) => {
-        return res.json(DialogueService.serializeDialogue(res.dialogue));
+        res.json(DialogueService.serializeDialogue(res.dialogue));
     })
     .delete(requireAuth, verifyAdminPrivileges, (req, res, next) => {
         DialogueService.removeDialogue(
@@ -133,7 +133,7 @@ dialogueRouter
             return res.status(400).json({
                 error: {
                     message: `Request body must contain one of 'chapter_number', 'page', 'text', 'image_url', 'image_alt_text', 'choices', 'responses_to_choices', 'background_image_url', 'background_image_alt_text'.`,
-                }
+                },
             });
         }
 
@@ -153,9 +153,7 @@ dialogueRouter
                             req.params.dialogue_id,
                             dialogueToUpdate
                         )
-                            .then(numRowsAffected => {
-                                return res.status(204).end();
-                            })
+                            .then(numRowsAffected => res.status(204).end())
                             .catch(next);                
                     }
                 })
@@ -166,9 +164,7 @@ dialogueRouter
                 req.params.dialogue_id,
                 dialogueToUpdate
             )
-                .then(numRowsAffected => {
-                    return res.status(204).end();
-                })
+                .then(numRowsAffected => res.status(204).end())
                 .catch(next);
         }
     });

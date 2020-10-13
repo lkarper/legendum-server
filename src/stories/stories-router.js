@@ -47,7 +47,7 @@ storiesRouter
                         story
                     )
                         .then(story => {
-                            return res.status(201)
+                            res.status(201)
                                 .location(path.posix.join(req.originalUrl, `/${story.id}`))
                                 .json(StoriesService.serializeStory(story));
                         });
@@ -60,18 +60,14 @@ storiesRouter
     .route('/by-chapter/:chapter_number')
     .all(checkChapterExists)
     .get((req, res, next) => {
-        return res.json(
-            StoriesService.serializeStory(res.chapter)
-        );
+        res.json(StoriesService.serializeStory(res.chapter));
     });
 
 storiesRouter
     .route('/:story_id')
     .all(checkStoryExists)
     .get((req, res, next) => {
-        return res.json(
-            StoriesService.serializeStory(res.story)
-        );
+        res.json(StoriesService.serializeStory(res.story));
     })
     .delete(requireAuth, verifyAdminPrivileges, (req, res, next) => {
         StoriesService.deleteStory(

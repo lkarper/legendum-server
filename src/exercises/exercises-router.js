@@ -18,7 +18,6 @@ exercisesRouter
             .catch(next);
     })
     .post(requireAuth, verifyAdminPrivileges, jsonBodyParser, (req, res, next) => {
-
         const { 
             chapter_number,
             exercise_title,
@@ -89,9 +88,7 @@ exercisesRouter
             req.app.get('db'),
             req.params.exercise_id
         )
-            .then(() => {
-                res.status(204).end();
-            })
+            .then(() => res.status(204).end())
             .catch(next);
     })
     .patch(requireAuth, verifyAdminPrivileges, jsonBodyParser, (req, res, next) => {
@@ -158,9 +155,7 @@ exercisesRouter
                 req.params.exercise_id,
                 exerciseToUpdate
             )
-                .then(numRowsAffected => {
-                    res.status(204).end();
-                })
+                .then(numRowsAffected => res.status(204).end())
                 .catch(next);
         }
     });
@@ -225,16 +220,14 @@ exercisesRouter
     .all(checkChapterExists)
     .all(checkLearnPageExists)
     .get((req, res, next) => {
-        return res.json(ExercisesService.serializeLearnPage(res.learnPage));
+        res.json(ExercisesService.serializeLearnPage(res.learnPage));
     })
     .delete(requireAuth, verifyAdminPrivileges, (req, res, next) => {
         ExercisesService.removeExercisesLearnPage(
             req.app.get('db'),
             req.params.page_id
         )
-            .then(() => {
-                return res.status(204).end();
-            })
+            .then(() => res.status(204).end())
             .catch(next);
     })
     .patch(requireAuth, verifyAdminPrivileges, jsonBodyParser, (req, res, next) => {
@@ -268,9 +261,7 @@ exercisesRouter
             req.params.page_id,
             learnPageUpdates
         )
-            .then(numRowsAffected => {
-                res.status(204).end();
-            })
+            .then(numRowsAffected => res.status(204).end())
             .catch(next);
     });
 
@@ -335,9 +326,7 @@ exercisesRouter
             req.app.get('db'),
             req.params.hint_id
         )
-            .then(() => {
-                res.status(204).end();
-            })
+            .then(() => res.status(204).end())
             .catch(next);
     })
     .patch(requireAuth, verifyAdminPrivileges, jsonBodyParser, (req, res, next) => {
@@ -363,9 +352,7 @@ exercisesRouter
             req.params.hint_id,
             hintUpdates
         )
-            .then(numRowsAffected => {
-                res.status(204).end();
-            })
+            .then(numRowsAffected => res.status(204).end())
             .catch(next);
     });
 
@@ -461,7 +448,7 @@ exercisesRouter
     .all(checkChapterExists)
     .all(checkDoPageExists)
     .get((req, res, next) => {
-        return res.json(ExercisesService.serializeDoPage(res.doPage));
+        res.json(ExercisesService.serializeDoPage(res.doPage));
     })
     .delete(requireAuth, verifyAdminPrivileges, (req, res, next) => {
         ExercisesService.deleteExercise(
@@ -536,9 +523,7 @@ exercisesRouter
             req.params.page_id,
             doPageFieldsToUpdate
         )
-            .then(numRowsAffected => {
-                res.status(204).end();
-            })
+            .then(numRowsAffected => res.status(204).end())
             .catch(next);
     });
     
