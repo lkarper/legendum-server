@@ -61,7 +61,7 @@ describe('Auth endpoints', () => {
                 .post('/api/auth/login')
                 .send(badUsername)
                 .expect(400, {
-                    error: `Incorrect user_name or password`,
+                    error: `Incorrect username or password`,
                 });
         });
 
@@ -75,7 +75,7 @@ describe('Auth endpoints', () => {
                 .post('/api/auth/login')
                 .send(badPassword)
                 .expect(400, {
-                    error: `Incorrect user_name or password`,
+                    error: `Incorrect username or password`,
                 });
         });
 
